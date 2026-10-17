@@ -96,16 +96,6 @@ async function drawQrCode(ctx, x, y, size, url) {
   drawQrFallback(ctx, x, y, size);
 }
 
-function fitText(ctx, text, maxWidth, startSize, family, weight) {
-  let size = startSize;
-  while (size > 20) {
-    ctx.font = `${weight} ${size}px ${family}`;
-    if (ctx.measureText(text).width <= maxWidth) break;
-    size -= 2;
-  }
-  return size;
-}
-
 export async function drawShareCard(canvas, {
   copy,
   lang = 'en',
@@ -172,30 +162,15 @@ export async function drawShareCard(canvas, {
 
   cursor += 58;
 
-  const qrSize = 230;
-  const qrX = rtl ? WIDTH - 86 - qrSize : 86;
+  const qrSize = dataLines.length ? 250 : 340;
+  const qrX = Math.round((WIDTH - qrSize) / 2);
   const url = buildLandingUrl(slug);
   await drawQrCode(ctx, qrX, cursor, qrSize, url);
 
-  const textX = rtl ? WIDTH - 86 - qrSize - 44 : 86 + qrSize + 44;
-  const textWidth = maxWidth - qrSize - 44;
-  ctx.textAlign = rtl ? 'right' : 'left';
-  ctx.fillStyle = muted;
-  ctx.font = `600 22px ${mono}`;
-  ctx.fillText(copy.card.urlLabel, textX, cursor + 32);
-
-  const urlSize = fitText(ctx, url, textWidth, 30, mono, 600);
-  ctx.font = `600 ${urlSize}px ${mono}`;
-  ctx.fillStyle = ink;
-  const urlLines = wrapLines(ctx, url, textWidth);
-  urlLines.slice(0, 3).forEach((line, index) => {
-    ctx.fillText(line, textX, cursor + 82 + index * 38);
-  });
-
-  cursor += qrSize + 64;
+  cursor += qrSize + 46;
 
   if (dataLines.length) {
-    const boxHeight = 58 + dataLines.length * 40;
+    const boxHeight = 48 + dataLines.length * 34;
     ctx.fillStyle = panel;
     roundedRect(ctx, 86, cursor, WIDTH - 172, boxHeight, 22);
     ctx.fill();
@@ -205,13 +180,13 @@ export async function drawShareCard(canvas, {
     ctx.textAlign = rtl ? 'right' : 'left';
     ctx.fillStyle = orange;
     ctx.font = `700 20px ${mono}`;
-    ctx.fillText(copy.card.dataLabel, x, cursor + 38);
+    ctx.fillText(copy.card.dataLabel, x, cursor + 32);
     ctx.fillStyle = ink;
-    ctx.font = `500 26px ${family}`;
+    ctx.font = `500 24px ${family}`;
     dataLines.slice(0, 4).forEach((line, index) => {
-      ctx.fillText(line, x, cursor + 80 + index * 40);
+      ctx.fillText(line, x, cursor + 68 + index * 34);
     });
-    cursor += boxHeight + 34;
+    cursor += boxHeight + 28;
   }
 
   ctx.textAlign = rtl ? 'right' : 'left';

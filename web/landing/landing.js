@@ -498,6 +498,21 @@ function buildArtifact(artifact, copy) {
   if (artifact.sample) head.append(el('span', 'sample-stamp', artifact.sample));
   root.append(head);
 
+  if (artifact.image) {
+    const frame = el('span', 'artifact-image-wrap');
+    const image = document.createElement('img');
+    image.className = 'artifact-image';
+    image.src = artifact.image;
+    image.alt = artifact.imageAlt || artifact.title || '';
+    image.loading = 'lazy';
+    image.decoding = 'async';
+    frame.append(image);
+    if (artifact.caption) {
+      frame.append(el('span', 'artifact-image-caption', artifact.caption));
+    }
+    root.append(frame);
+  }
+
   if (artifact.kind === 'sms') {
     const bubble = el('span', 'sms-bubble');
     bubble.append(

@@ -35,6 +35,13 @@ test('the static site has no build step and includes a root redirect', async () 
   assert.equal(nojekyll, '');
 });
 
+test('the quiz placeholder asset exists and is local', async () => {
+  const svg = await read('web/landing/assets/instapay-placeholder.svg');
+  assert.ok(svg.length > 500);
+  assert.match(svg, /^<svg/);
+  assert.match(svg, /PLACEHOLDER/);
+});
+
 test('documentation deliverables exist', async () => {
   for (const file of ['README.md', 'API.md', 'TESTING.md']) {
     const text = await read(file);

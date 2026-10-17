@@ -1099,6 +1099,32 @@ h3 {
   font-weight: 700;
 }
 
+.artifact-image-wrap {
+  display: block;
+  margin-block: 0.7rem 0.2rem;
+}
+
+.artifact-image {
+  display: block;
+  width: 100%;
+  max-width: 420px;
+  height: auto;
+  margin-inline: auto;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: #f4f1e8;
+}
+
+.artifact-image-caption {
+  display: block;
+  margin-block-start: 0.4rem;
+  color: var(--dim);
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  line-height: 1.4;
+  text-align: center;
+}
+
 .sample-stamp {
   display: inline-block;
   padding: 0.12rem 0.35rem;

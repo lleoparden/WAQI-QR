@@ -10,7 +10,7 @@ Use this after the Supabase project and GitHub Pages site are configured. The au
 npm test
 ```
 
-Expected: **43 tests pass**, with no skipped tests.
+Expected: **45 tests pass**, with no skipped tests.
 
 The suite covers:
 
@@ -331,7 +331,7 @@ grep -nE "api\.js|record_scan|record_event|localStorage|SUPABASE_URL|rest/v1" we
 ## 13. Share card and opt-in data
 
 1. Open the share section with the checkbox **unchecked**.
-2. **Expected:** the card contains the headline, the landing URL/QR, and WAQI branding. It contains **none** of the revealed device/city data.
+2. **Expected:** the card contains the headline, the QR, and WAQI branding. It contains **no URL text** and none of the revealed device/city data.
 3. Tick the checkbox.
 4. **Expected:** the card redraws with only device/city lines. No network request is made. No coordinates or fingerprint are included.
 5. Click **Create & share card** on a phone with Web Share support.

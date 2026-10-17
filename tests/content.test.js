@@ -64,6 +64,16 @@ test('every URL in the copy uses a reserved .example domain', () => {
   }
 });
 
+test('the InstaPay round uses an explicit local placeholder image', () => {
+  for (const language of LANGUAGE_ORDER) {
+    const round = content[language].quiz.rounds.find((item) => item.id === 'receipt');
+    assert.equal(round.artifact.image, './assets/instapay-placeholder.svg');
+    assert.ok(round.artifact.imageAlt);
+    assert.match(round.artifact.caption, /placeholder|مؤقتة/i);
+    assert.equal(round.artifact.image.startsWith('./'), true);
+  }
+});
+
 test('the quiz has four complete rounds with a tell and valid answer', () => {
   for (const language of LANGUAGE_ORDER) {
     const quiz = content[language].quiz;

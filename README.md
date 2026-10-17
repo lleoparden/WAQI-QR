@@ -30,6 +30,7 @@ web/
     guessDevice.js                  pure, unit-tested device guess
     funnel.js                       whitelisted event pings
     share.js                        canvas share card
+    assets/instapay-placeholder.svg clearly-marked quiz placeholder
   admin/
     index.html, login.html          dashboard + login
     styles.css                      admin-only styling
@@ -260,6 +261,16 @@ If you replace the frontend, do not change the privacy contract: no IP, fingerpr
 - **Auto-refresh:** every 30 seconds while the tab is visible.
 
 The admin console redirects to the login page when there is no session and marks itself `noindex, nofollow`.
+
+### Replacing the InstaPay quiz placeholder image
+
+The first quiz round currently shows [`web/landing/assets/instapay-placeholder.svg`](web/landing/assets/instapay-placeholder.svg), a clearly marked synthetic placeholder. When the final fake-transaction screenshot is ready:
+
+1. Put the image in `web/landing/assets/` (PNG/JPG/WebP/SVG).
+2. Update the `image`, `imageAlt`, and `caption` fields in the `receipt` round inside [`web/landing/content.js`](web/landing/content.js).
+3. Keep it synthetic: no real receipts, account numbers, phone numbers, or other people's data.
+
+The card's share image intentionally shows only a QR — no URL text.
 
 ---
 
