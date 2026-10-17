@@ -1,0 +1,35 @@
+name: Keep Supabase awake
+
+on:
+  schedule:
+    # Every two days. Supabase free projects pause after roughly seven days
+    # without activity, so this leaves a wide safety margin.
+    - cron: '17 3 */2 * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Call the public ping RPC
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+        run: |
+          set -euo pipefail
+          if [ -z "${SUPABASE_URL:-}" ] || [ -z "${SUPABASE_ANON_KEY:-}" ]; then
+            echo "Set the SUPABASE_URL and SUPABASE_ANON_KEY repository secrets first." >&2
+            exit 1
+          fi
+          response="$(curl --fail --silent --show-error --max-time 30 \
+            -X POST "${SUPABASE_URL%/}/rest/v1/rpc/ping" \
+            -H "apikey: $SUPABASE_ANON_KEY" \
+            -H "Authorization: Bearer $SUPABASE_ANON_KEY" \
+            -H "Content-Type: application/json" \
+            -d '{}')"
+          echo "Response: $response"
+          test "$response" = "true"
+          echo "Supabase is awake."

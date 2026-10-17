@@ -1,0 +1,15 @@
+{
+  "name": "waqi-qr-awareness",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Free, always-online QR scan tracking and scam-awareness campaign for WAQI.",
+  "scripts": {
+    "test": "node --test",
+    "serve": "node scripts/serve.mjs",
+    "check": "node --test"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

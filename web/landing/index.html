@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#05070a">
+  <meta name="description" content="An interactive look at what any website can learn about you, how a scammer would use it, and how to stay safe.">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="WAQI — You just scanned an unknown QR code">
+  <meta property="og:description" content="See what any website learns in under a second. Then see how a scammer would use it.">
+  <title>WAQI — QR awareness</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%2305070a'/%3E%3Cpath d='M12 20h12v12H12zm28 0h12v12H40zM12 44h12v8H12zm36-8h4v16h-8v-8h4z' fill='%23ff5a1f'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="./styles.css">
+  <script>document.documentElement.classList.add('js');</script>
+  <script defer src="https://cdn.jsdelivr.net/npm/ua-parser-js@1.0.39/dist/ua-parser.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
+  <script type="module" src="./landing.js"></script>
+</head>
+<body>
+  <a class="skip-link" href="#scanner-section" data-i18n="nav.skipToContent">Skip to content</a>
+
+  <header class="site-header">
+    <a class="brand" href="./" aria-label="WAQI">
+      <span class="brand-mark" aria-hidden="true">
+        <i></i><i></i><i></i><i></i>
+      </span>
+      <span class="brand-copy">
+        <strong id="brand-name">WAQI</strong>
+        <small id="brand-tagline">Scam awareness</small>
+      </span>
+    </a>
+    <nav class="header-nav" aria-label="Page links">
+      <a href="#transparency" data-i18n="nav.privacy">Privacy</a>
+      <button class="lang-toggle" id="lang-toggle" type="button" aria-label="العربية">العربية</button>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero" aria-labelledby="hero-title">
+      <div class="hero-copy">
+        <p class="eyebrow" id="hero-eyebrow" data-i18n="hero.eyebrow">WAQI · QR AWARENESS</p>
+        <h1 id="hero-title" data-i18n="hero.title">You just scanned an unknown QR code.</h1>
+        <p class="lede" id="hero-subtitle" data-i18n="hero.subtitle">Nothing bad happened. What happened next is the part worth seeing.</p>
+        <div class="source-chip">
+          <span data-i18n="hero.sourceLabel">QR source</span>
+          <code id="source-slug">—</code>
+        </div>
+        <p class="hint" data-i18n="hero.hint">Scroll. It takes less than a minute.</p>
+      </div>
+      <div class="hero-visual" aria-hidden="true">
+        <div class="scanner-frame">
+          <div class="scanner-scanline"></div>
+          <div class="fake-qr">
+            <span class="qr-corner qr-a"></span>
+            <span class="qr-corner qr-b"></span>
+            <span class="qr-corner qr-c"></span>
+            <span class="qr-dot d1"></span><span class="qr-dot d2"></span><span class="qr-dot d3"></span>
+            <span class="qr-dot d4"></span><span class="qr-dot d5"></span><span class="qr-dot d6"></span>
+            <span class="qr-dot d7"></span><span class="qr-dot d8"></span><span class="qr-dot d9"></span>
+          </div>
+          <p class="scanner-caption" id="qr-caption">NO NAME · NO CONTEXT · JUST A LINK</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section scanner-section" id="scanner-section" aria-labelledby="scanner-title">
+      <div class="terminal scanner-terminal">
+        <div class="terminal-bar">
+          <span class="terminal-dots" aria-hidden="true"><i></i><i></i><i></i></span>
+          <span class="terminal-path" id="scanner-path">waqi@local:~</span>
+          <span class="terminal-tag" id="scanner-tag">LOCAL</span>
+        </div>
+        <h2 id="scanner-title" class="scanner-title" data-i18n="scanner.title">Preparing what any website can see…</h2>
+        <div class="scanner-lines" id="scanner-lines" aria-live="polite"></div>
+        <div class="scanner-progress"><span id="scanner-bar"></span></div>
+        <button class="text-button" id="skip-animation" type="button" data-i18n="scanner.skip">Skip animation</button>
+      </div>
+    </section>
+
+    <section class="section reveal-section" id="reveal-section" aria-labelledby="reveal-title" hidden>
+      <header class="section-head">
+        <p class="eyebrow" id="reveal-eyebrow" data-i18n="reveal.eyebrow">THE REVEAL</p>
+        <h2 id="reveal-title" data-i18n="reveal.title">This is what ANY website you open learns in under a second.</h2>
+        <p class="section-intro" id="reveal-intro" data-i18n="reveal.intro"></p>
+      </header>
+
+      <div class="terminal reveal-terminal">
+        <div class="terminal-bar">
+          <span class="terminal-dots" aria-hidden="true"><i></i><i></i><i></i></span>
+          <span class="terminal-path" id="reveal-path">profile.local</span>
+          <span class="terminal-tag" id="reveal-tag">NO SERVER</span>
+        </div>
+        <div class="reveal-loading" id="reveal-loading" data-i18n="scanner.waiting">Still reading…</div>
+        <div class="reveal-rows" id="reveal-rows" role="list" aria-label="Revealed data"></div>
+        <div class="reveal-foot" id="reveal-foot" hidden>
+          <p class="reveal-headline" id="reveal-headline" data-i18n="reveal.headline"></p>
+          <p class="reveal-conclusion" id="reveal-conclusion" data-i18n="reveal.conclusion"></p>
+
+          <div class="optin">
+            <h3 id="optin-title" data-i18n="reveal.optIn.title"></h3>
+            <p class="muted" id="optin-why" data-i18n="reveal.optIn.why"></p>
+            <button class="button button-outline" id="geo-button" type="button" data-i18n="reveal.optIn.button"></button>
+            <p class="geo-status" id="geo-status" aria-live="polite"></p>
+            <div class="geo-result" id="geo-result" hidden>
+              <span data-i18n="reveal.optIn.result"></span>
+              <strong id="geo-coords"></strong>
+              <small id="geo-accuracy"></small>
+              <small id="geo-note" data-i18n="reveal.optIn.note"></small>
+            </div>
+          </div>
+        </div>
+      </div>
+      <p class="local-note" data-i18n="reveal.privateNoStore"></p>
+      <div id="reveal-sentinel" aria-hidden="true"></div>
+    </section>
+
+    <section class="section scammer-section" id="scammer-section" aria-labelledby="scammer-title" hidden>
+      <header class="section-head">
+        <p class="eyebrow" id="scammer-eyebrow" data-i18n="scammer.eyebrow"></p>
+        <h2 id="scammer-title" data-i18n="scammer.title"></h2>
+        <p class="section-intro" id="scammer-intro" data-i18n="scammer.intro"></p>
+      </header>
+      <p class="scammer-knows" id="scammer-knows"></p>
+      <div class="simulation-grid" id="scam-cards"></div>
+      <p class="scammer-real" id="scammer-real"></p>
+      <p class="honesty" id="scammer-honesty"></p>
+      <p class="scammer-footer" id="scammer-footer"></p>
+      <button class="button" id="scammer-next" type="button"></button>
+    </section>
+
+    <section class="section quiz-section" id="quiz-section" aria-labelledby="quiz-title" hidden>
+      <header class="section-head">
+        <p class="eyebrow" id="quiz-eyebrow" data-i18n="quiz.eyebrow"></p>
+        <h2 id="quiz-title" data-i18n="quiz.title"></h2>
+        <p class="section-intro" id="quiz-intro" data-i18n="quiz.intro"></p>
+      </header>
+      <div class="quiz-card" id="quiz-card"></div>
+    </section>
+
+    <section class="section good-section" id="good-news" aria-labelledby="good-title" hidden>
+      <header class="section-head">
+        <p class="eyebrow" id="good-eyebrow" data-i18n="goodNews.eyebrow"></p>
+        <h2 id="good-title" data-i18n="goodNews.title"></h2>
+        <p class="section-intro" id="good-intro" data-i18n="goodNews.intro"></p>
+      </header>
+      <div class="tips-grid" id="tips-grid"></div>
+      <p class="good-closing" id="good-closing"></p>
+      <button class="button" id="good-next" type="button"></button>
+    </section>
+
+    <!-- WAQI CAMPAIGN PLACEHOLDER: edit copy and ctaUrl in content.js. -->
+    <section class="section waqi-section" id="waqi" aria-labelledby="waqi-title" hidden>
+      <div class="waqi-card">
+        <div class="waqi-copy">
+          <p class="eyebrow" id="waqi-eyebrow" data-i18n="waqi.eyebrow"></p>
+          <span class="placeholder-badge" id="waqi-placeholder" data-i18n="waqi.placeholder"></span>
+          <h2 id="waqi-title" data-i18n="waqi.title"></h2>
+          <p class="section-intro" id="waqi-body" data-i18n="waqi.body"></p>
+          <a class="button button-orange" id="waqi-cta" href="https://waqi.example" target="_blank" rel="noopener noreferrer" data-i18n="waqi.cta"></a>
+        </div>
+        <div class="waqi-features" id="waqi-features"></div>
+      </div>
+    </section>
+
+    <section class="section share-section" id="share" aria-labelledby="share-title" hidden>
+      <header class="section-head">
+        <p class="eyebrow" id="share-eyebrow" data-i18n="share.eyebrow"></p>
+        <h2 id="share-title" data-i18n="share.title"></h2>
+        <p class="section-intro" id="share-intro" data-i18n="share.intro"></p>
+      </header>
+      <div class="share-grid">
+        <div class="share-preview">
+          <canvas id="share-canvas" width="1080" height="1350" role="img" aria-label="WAQI share card"></canvas>
+        </div>
+        <div class="share-controls">
+          <label class="check-row" for="share-data">
+            <input type="checkbox" id="share-data">
+            <span data-i18n="share.checkbox"></span>
+          </label>
+          <button class="button button-orange" id="share-button" type="button"></button>
+          <button class="button button-outline" id="share-download" type="button"></button>
+          <p class="muted" id="share-note" data-i18n="share.privacy"></p>
+          <p class="share-status" id="share-status" aria-live="polite"></p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section transparency-section" id="transparency" aria-labelledby="transparency-title">
+      <div class="transparency-card">
+        <div class="transparency-head">
+          <span class="lock" aria-hidden="true"></span>
+          <p class="eyebrow" id="transparency-badge" data-i18n="transparency.badge"></p>
+        </div>
+        <h2 id="transparency-title" data-i18n="transparency.title"></h2>
+        <p class="section-intro" id="transparency-body" data-i18n="transparency.body"></p>
+        <ul class="transparency-list" id="transparency-list"></ul>
+        <p class="transparency-live" id="transparency-live"></p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p id="footer-project" data-i18n="footer.project"></p>
+    <p><a href="#transparency" id="footer-privacy" data-i18n="footer.privacy"></a> · <a href="../admin/" id="footer-admin" data-i18n="footer.admin"></a></p>
+    <p class="muted" id="footer-built" data-i18n="footer.built"></p>
+  </footer>
+
+  <aside class="privacy-tape" aria-label="Privacy">
+    <span class="privacy-dot" aria-hidden="true"></span>
+    <span id="privacy-tape-text" data-i18n="transparency.live"></span>
+  </aside>
+
+  <noscript>
+    <div class="noscript">This interactive experience needs JavaScript. The QR scan still opens the page; enable JavaScript to see the reveal.</div>
+  </noscript>
+</body>
+</html>

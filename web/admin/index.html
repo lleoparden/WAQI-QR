@@ -1,0 +1,270 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#05070a">
+  <title>WAQI Admin</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%2305070a'/%3E%3Cpath d='M12 20h12v12H12zm28 0h12v12H40zM12 44h12v8H12zm36-8h4v16h-8v-8h4z' fill='%23ff5a1f'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="./styles.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+  <script type="module" src="./admin.js"></script>
+</head>
+<body class="admin-body">
+  <header class="admin-topbar">
+    <a class="admin-brand" href="./" aria-label="WAQI Admin">
+      <span class="admin-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+      <span><strong>WAQI</strong><small>Campaign console</small></span>
+    </a>
+    <div class="admin-top-actions">
+      <span class="sync-note" id="last-updated">Not synced yet</span>
+      <a class="text-link" href="../landing/" target="_blank" rel="noopener">View landing</a>
+      <span class="sync-note" id="session-email"></span>
+      <button class="small-button" id="logout" type="button">Sign out</button>
+    </div>
+  </header>
+
+  <main class="admin-main">
+    <div class="notice warning" id="config-warning" hidden>
+      Supabase is not configured yet. Edit <code>web/config.js</code> and reload.
+    </div>
+    <div class="notice error" id="admin-error" role="alert" hidden></div>
+
+    <section class="admin-section overview-section" aria-labelledby="overview-title">
+      <div class="section-title-row">
+        <div>
+          <p class="admin-eyebrow">LIVE CAMPAIGN</p>
+          <h1 id="overview-title">Overview</h1>
+        </div>
+        <p class="sync-note" id="admin-loading">Loading campaign data…</p>
+      </div>
+      <div class="stats-grid">
+        <article class="stat-card accent">
+          <span class="stat-label">Human scans</span>
+          <strong id="stat-human-scans">—</strong>
+          <small id="stat-total-scans">— total including bots</small>
+        </article>
+        <article class="stat-card">
+          <span class="stat-label">Unique humans</span>
+          <strong id="stat-unique">—</strong>
+          <small id="stat-unique-all">— including bots</small>
+        </article>
+        <article class="stat-card">
+          <span class="stat-label">Active QR codes</span>
+          <strong id="stat-active-qrs">—</strong>
+          <small>within their schedule</small>
+        </article>
+        <article class="stat-card">
+          <span class="stat-label">Human scans · 24h</span>
+          <strong id="stat-24h">—</strong>
+          <small id="stat-bots-24h">— bot scans</small>
+        </article>
+        <article class="stat-card split">
+          <span class="stat-label">Human vs bot</span>
+          <strong id="stat-human-bot">—</strong>
+          <small>bots are stored, never counted in headline numbers</small>
+        </article>
+      </div>
+    </section>
+
+    <section class="goal-card" aria-labelledby="goal-title">
+      <div class="goal-copy">
+        <p class="admin-eyebrow">GOAL TRACKER</p>
+        <h2 id="goal-title">Campaign goal</h2>
+        <p class="sync-note">This target is saved in this browser only.</p>
+      </div>
+      <div class="goal-progress-wrap">
+        <div class="goal-progress" role="progressbar" aria-labelledby="goal-title" aria-valuemin="0" aria-valuemax="100" id="goal-progress">
+          <span id="goal-bar"></span>
+        </div>
+        <div class="goal-line">
+          <span id="goal-text">0 / 500 human scans</span>
+          <label class="inline-field">Target <input id="goal-input" type="number" min="1" step="1" value="500"></label>
+        </div>
+      </div>
+    </section>
+
+    <section class="admin-section create-section" aria-labelledby="create-title">
+      <div class="panel">
+        <div class="panel-head">
+          <div>
+            <p class="admin-eyebrow">NEW LINK</p>
+            <h2 id="create-title">Create a QR code</h2>
+          </div>
+        </div>
+        <form id="create-form" class="form-grid">
+          <label>Label <input id="create-label" name="label" required maxlength="120" placeholder="Campus poster — faculty of engineering"></label>
+          <label>Placement <input id="create-placement" name="placement" maxlength="120" placeholder="Main gate, Cairo"></label>
+          <label>Custom slug <span class="field-note">optional, 3–32 lowercase letters/numbers/hyphens</span>
+            <input id="create-slug" name="slug" pattern="[a-z0-9][a-z0-9-]{1,30}[a-z0-9]" placeholder="engineering-gate"></label>
+          <label>Variant <span class="field-note">optional A/B label</span>
+            <input id="create-variant" name="variant" maxlength="40" placeholder="fear / curiosity / control"></label>
+          <button class="primary-button" type="submit">Create QR</button>
+          <p class="form-status" id="create-status" role="status"></p>
+        </form>
+      </div>
+
+      <div class="panel preview-panel" id="qr-preview-panel" hidden>
+        <div class="panel-head">
+          <div>
+            <p class="admin-eyebrow">PRINT ASSET</p>
+            <h2>QR preview</h2>
+          </div>
+          <button class="small-button" id="close-preview" type="button">Close</button>
+        </div>
+        <div class="qr-preview-box">
+          <canvas id="qr-preview" width="360" height="360" aria-label="QR code preview"></canvas>
+        </div>
+        <code class="qr-url" id="qr-url"></code>
+        <div class="button-row">
+          <button class="small-button" id="qr-png" type="button">Download PNG</button>
+          <button class="small-button" id="qr-svg" type="button">Download SVG</button>
+        </div>
+
+        <div class="poster-controls">
+          <p class="admin-eyebrow">POSTER TILE</p>
+          <label>Call to action
+            <input id="poster-cta" type="text" maxlength="90" value="Would you scan this?">
+          </label>
+          <div class="button-row">
+            <button class="small-button" id="poster-cta-en" type="button">English CTA</button>
+            <button class="small-button" id="poster-cta-ar" type="button">Arabic CTA</button>
+          </div>
+          <label>Print size
+            <select id="poster-size">
+              <option value="a5">A5 · 1748 × 2480 px</option>
+              <option value="a4">A4 · 2480 × 3508 px</option>
+            </select>
+          </label>
+          <label>Logo (optional)
+            <input id="poster-logo" type="file" accept="image/png,image/jpeg,image/webp,image/svg+xml">
+          </label>
+          <button class="primary-button" id="poster-download" type="button">Download poster tile (300 DPI)</button>
+          <p class="form-status" id="poster-status" role="status"></p>
+        </div>
+      </div>
+    </section>
+
+    <section class="admin-section" aria-labelledby="table-title">
+      <div class="panel">
+        <div class="panel-head">
+          <div>
+            <p class="admin-eyebrow">ALL LINKS</p>
+            <h2 id="table-title">QR codes</h2>
+          </div>
+          <div class="button-row">
+            <button class="small-button" id="csv-stats" type="button">Per-QR CSV</button>
+            <button class="small-button" id="csv-scans" type="button">Raw scans CSV</button>
+            <button class="small-button" id="refresh" type="button">Refresh</button>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table class="qr-table">
+            <thead>
+              <tr>
+                <th><button data-sort="slug" type="button">Slug</button></th>
+                <th><button data-sort="label" type="button">Label</button></th>
+                <th><button data-sort="placement" type="button">Placement</button></th>
+                <th><button data-sort="variant" type="button">Variant</button></th>
+                <th><button data-sort="human_scans" type="button">Human scans</button></th>
+                <th><button data-sort="unique_human_visitors" type="button">Unique</button></th>
+                <th><button data-sort="last_scan_at" type="button">Last scan</button></th>
+                <th><button data-sort="active" type="button">Active</button></th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="qr-tbody"></tbody>
+          </table>
+        </div>
+        <p class="empty-state" id="qr-empty" hidden>No QR codes yet. Create the first one above.</p>
+      </div>
+    </section>
+
+    <section class="admin-section chart-section" aria-labelledby="charts-title">
+      <div class="section-title-row">
+        <div>
+          <p class="admin-eyebrow">SIGNALS</p>
+          <h2 id="charts-title">Charts</h2>
+        </div>
+        <label class="inline-field">QR filter
+          <select id="chart-qr-filter">
+            <option value="">All QR codes</option>
+          </select>
+        </label>
+      </div>
+
+      <div class="chart-grid">
+        <div class="panel chart-panel wide">
+          <div class="panel-head">
+            <h3>Scans over time</h3>
+            <span class="sync-note">Human scans · last 30 days</span>
+          </div>
+          <canvas id="timeseries-chart" height="300" aria-label="Scans over time chart"></canvas>
+        </div>
+
+        <div class="panel chart-panel">
+          <div class="panel-head">
+            <h3>Funnel</h3>
+            <span class="sync-note">Unique humans</span>
+          </div>
+          <canvas id="funnel-chart" height="300" aria-label="Funnel chart"></canvas>
+        </div>
+
+        <div class="panel chart-panel">
+          <div class="panel-head">
+            <h3>A/B variants</h3>
+            <span class="sync-note">Reveal and CTA rates</span>
+          </div>
+          <canvas id="variants-chart" height="300" aria-label="A/B variant chart"></canvas>
+        </div>
+
+        <div class="panel chart-panel wide">
+          <div class="panel-head">
+            <h3>Hour × weekday</h3>
+            <span class="sync-note">Africa/Cairo · human scans</span>
+          </div>
+          <div class="heatmap-scroll">
+            <div class="heatmap" id="heatmap" aria-label="Scans by weekday and hour heatmap"></div>
+          </div>
+          <div class="heatmap-legend">
+            <span>Less</span><i></i><i></i><i></i><i></i><i></i><span>More</span>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="admin-footer">
+    <span>WAQI campaign console</span>
+    <span>Auto-refresh every 30 seconds · only the anon key is in this browser</span>
+  </footer>
+
+  <dialog class="edit-dialog" id="edit-dialog" aria-labelledby="edit-title">
+    <form id="edit-form" method="dialog">
+      <div class="panel-head">
+        <h2 id="edit-title">Edit QR</h2>
+        <button class="small-button" id="edit-close" type="button">Close</button>
+      </div>
+      <input type="hidden" id="edit-id">
+      <div class="form-grid">
+        <label>Slug <input id="edit-slug" disabled></label>
+        <label>Label <input id="edit-label" required maxlength="120"></label>
+        <label>Placement <input id="edit-placement" maxlength="120"></label>
+        <label>Variant <input id="edit-variant" maxlength="40"></label>
+        <label>Starts at <input id="edit-starts" type="datetime-local"></label>
+        <label>Expires at <input id="edit-expires" type="datetime-local"></label>
+        <label class="check-inline"><input id="edit-active" type="checkbox"> Active</label>
+      </div>
+      <div class="button-row">
+        <button class="primary-button" type="submit">Save changes</button>
+        <button class="small-button" type="button" id="edit-cancel">Cancel</button>
+      </div>
+      <p class="form-status" id="edit-status" role="status"></p>
+    </form>
+  </dialog>
+
+  <noscript><div class="notice warning">The admin console needs JavaScript.</div></noscript>
+</body>
+</html>
