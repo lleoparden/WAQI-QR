@@ -15,6 +15,7 @@ export const REVEAL_ORDER = [
   'gpu',
   'fingerprint',
   'network',
+  'arrival',
 ];
 
 const FONT_CANDIDATES = [
@@ -70,14 +71,17 @@ function readGpu() {
   try {
     const canvas = document.createElement('canvas');
     const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
-    if (!gl) return { renderer: '', vendor: '' };
+    if (!gl) return { renderer: '', vendor: '', version: '', shading: '', maxTexture: 0 };
     const debug = gl.getExtension('WEBGL_debug_renderer_info');
     return {
       renderer: debug ? clean(gl.getParameter(debug.UNMASKED_RENDERER_WEBGL)) : clean(gl.getParameter(gl.RENDERER)),
       vendor: debug ? clean(gl.getParameter(debug.UNMASKED_VENDOR_WEBGL)) : clean(gl.getParameter(gl.VENDOR)),
+      version: clean(gl.getParameter(gl.VERSION)),
+      shading: clean(gl.getParameter(gl.SHADING_LANGUAGE_VERSION)),
+      maxTexture: Number(gl.getParameter(gl.MAX_TEXTURE_SIZE)) || 0,
     };
   } catch {
-    return { renderer: '', vendor: '' };
+    return { renderer: '', vendor: '', version: '', shading: '', maxTexture: 0 };
   }
 }
 
@@ -90,6 +94,8 @@ function readUaParser() {
       browserVersion: clean(result.browser?.version),
       osName: clean(result.os?.name),
       osVersion: clean(result.os?.version),
+      engineName: clean(result.engine?.name),
+      engineVersion: clean(result.engine?.version),
       deviceType: clean(result.device?.type),
       deviceVendor: clean(result.device?.vendor),
       deviceModel: clean(result.device?.model),
@@ -112,12 +118,43 @@ async function readBattery() {
   }
 }
 
+async function readStorage() {
+  try {
+    if (!navigator.storage?.estimate) return null;
+    const estimate = await withTimeout(navigator.storage.estimate(), 1200);
+    return {
+      quota: Number(estimate.quota) || 0,
+      usage: Number(estimate.usage) || 0,
+    };
+  } catch {
+    return null;
+  }
+}
+
+function readArrival() {
+  try {
+    const referrer = clean(document.referrer);
+    if (!referrer) return null;
+    const url = new URL(referrer);
+    if (url.hostname === location.hostname) return null;
+    return { referrer, host: url.hostname };
+  } catch {
+    return null;
+  }
+}
+
 function readConnection() {
   try {
     const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
-    return clean(connection?.effectiveType).toUpperCase();
+    if (!connection) return null;
+    return {
+      effectiveType: clean(connection.effectiveType).toUpperCase(),
+      downlink: Number.isFinite(Number(connection.downlink)) ? Number(connection.downlink) : null,
+      rtt: Number.isFinite(Number(connection.rtt)) ? Number(connection.rtt) : null,
+      saveData: Boolean(connection.saveData),
+    };
   } catch {
-    return '';
+    return null;
   }
 }
 
@@ -134,14 +171,24 @@ function readLocale(lang) {
     const languages = Array.isArray(navigator.languages) && navigator.languages.length
       ? navigator.languages
       : [navigator.language].filter(Boolean);
-    const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone || '';
+    const options = Intl.DateTimeFormat().resolvedOptions();
     return {
       languages,
-      timezone,
+      timezone: options.timeZone || '',
       localTime: formatLocalTime(new Date(), lang),
+      utcOffset: -new Date().getTimezoneOffset(),
+      calendar: clean(options.calendar),
+      numberingSystem: clean(options.numberingSystem),
     };
   } catch {
-    return { languages: [], timezone: '', localTime: '' };
+    return {
+      languages: [],
+      timezone: '',
+      localTime: '',
+      utcOffset: null,
+      calendar: '',
+      numberingSystem: '',
+    };
   }
 }
 
@@ -248,6 +295,22 @@ function detectFonts() {
   }
 }
 
+async function shortHash(value, length) {
+  try {
+    if (!value || !globalThis.crypto?.subtle || !globalThis.TextEncoder) return '';
+    const digest = await globalThis.crypto.subtle.digest(
+      'SHA-256',
+      new TextEncoder().encode(value)
+    );
+    return Array.from(new Uint8Array(digest))
+      .map((byte) => byte.toString(16).padStart(2, '0'))
+      .join('')
+      .slice(0, length);
+  } catch {
+    return '';
+  }
+}
+
 async function buildFingerprint(gpu) {
   try {
     const canvas = canvasSignal();
@@ -257,6 +320,7 @@ async function buildFingerprint(gpu) {
       canvas,
       gpu.renderer,
       gpu.vendor,
+      gpu.version,
       audio,
       fonts.names.join(','),
       `${window.screen.width}x${window.screen.height}@${window.devicePixelRatio}`,
@@ -264,21 +328,15 @@ async function buildFingerprint(gpu) {
       navigator.language || '',
     ].join('|');
 
-    let id = '';
-    if (globalThis.crypto?.subtle && globalThis.TextEncoder) {
-      const digest = await globalThis.crypto.subtle.digest(
-        'SHA-256',
-        new TextEncoder().encode(material)
-      );
-      id = Array.from(new Uint8Array(digest))
-        .map((byte) => byte.toString(16).padStart(2, '0'))
-        .join('')
-        .slice(0, 12);
-    }
+    const [id, canvasId, audioId] = await Promise.all([
+      shortHash(material, 12),
+      shortHash(canvas, 8),
+      shortHash(audio, 8),
+    ]);
 
-    return { id, fonts: fonts.count };
+    return { id, canvasId, audioId, fonts: fonts.count };
   } catch {
-    return { id: '', fonts: 0 };
+    return { id: '', canvasId: '', audioId: '', fonts: 0 };
   }
 }
 
@@ -320,8 +378,10 @@ async function lookupNetwork() {
         ok: true,
         ip: clean(data.ip),
         city: clean(data.city),
+        region: clean(data.region),
         country: clean(data.country),
         isp: clean(data.connection?.isp || data.connection?.org),
+        asn: data.connection?.asn ? `AS${data.connection.asn}` : '',
         source: 'ipwho.is',
       };
     }
@@ -338,8 +398,10 @@ async function lookupNetwork() {
         ok: true,
         ip: clean(fields.ip),
         city: '',
+        region: '',
         country: clean(fields.loc),
         isp: '',
+        asn: '',
         source: 'Cloudflare trace',
       };
     }
@@ -347,7 +409,16 @@ async function lookupNetwork() {
     // Graceful degradation: the page must render offline.
   }
 
-  return { ok: false, ip: '', city: '', country: '', isp: '', source: '' };
+  return {
+    ok: false,
+    ip: '',
+    city: '',
+    region: '',
+    country: '',
+    isp: '',
+    asn: '',
+    source: '',
+  };
 }
 
 export async function createRevealState(lang = 'en') {
@@ -365,8 +436,17 @@ export async function createRevealState(lang = 'en') {
   const screen = {
     width: window.screen?.width || window.innerWidth || 0,
     height: window.screen?.height || window.innerHeight || 0,
+    availWidth: window.screen?.availWidth || 0,
+    availHeight: window.screen?.availHeight || 0,
+    innerWidth: window.innerWidth || 0,
+    innerHeight: window.innerHeight || 0,
     dpr: Number(window.devicePixelRatio) || 1,
     touchPoints: Number(navigator.maxTouchPoints) || 0,
+    colorDepth: Number(window.screen?.colorDepth) || 0,
+    pixelDepth: Number(window.screen?.pixelDepth) || 0,
+    orientation: clean(window.screen?.orientation?.type),
+    displayMode: ['standalone', 'minimal-ui', 'fullscreen', 'browser']
+      .find((mode) => readMedia(`(display-mode: ${mode})`)) || '',
   };
   const gpu = readGpu();
   const locale = readLocale(lang);
@@ -374,8 +454,15 @@ export async function createRevealState(lang = 'en') {
     cores: Number(navigator.hardwareConcurrency) || 0,
     memory: Number(navigator.deviceMemory) || 0,
     connection: readConnection(),
+    storage: null,
     battery: null,
     dark: readMedia('(prefers-color-scheme: dark)'),
+    contrast: readMedia('(prefers-contrast: more)')
+      ? 'more'
+      : readMedia('(prefers-contrast: less)') ? 'less' : 'no-preference',
+    forcedColors: readMedia('(forced-colors: active)'),
+    pointer: readMedia('(pointer: coarse)') ? 'coarse' : readMedia('(pointer: fine)') ? 'fine' : 'none',
+    hover: readMedia('(hover: hover)') ? 'hover' : 'none',
     reducedMotion: readMedia('(prefers-reduced-motion: reduce)'),
   };
 
@@ -389,6 +476,7 @@ export async function createRevealState(lang = 'en') {
     locale,
     hardware,
     gpu,
+    arrival: readArrival(),
     brand: null,
     fingerprint: null,
     network: null,
@@ -410,6 +498,7 @@ export async function createRevealState(lang = 'en') {
     rows: {},
     lang,
     batteryPromise: readBattery(),
+    storagePromise: readStorage(),
     fingerprintPromise: buildFingerprint(gpu),
     networkPromise: lookupNetwork(),
   };
@@ -429,6 +518,8 @@ export async function resolveRevealRow(state, key) {
         osVersion: state.signals.parsed.osVersion,
         browserName: state.signals.parsed.browserName,
         browserVersion: state.signals.parsed.browserVersion,
+        architecture: clean(state.signals.highEntropy?.architecture),
+        platformVersion: clean(state.signals.highEntropy?.platformVersion),
         uaParser: state.signals.uaParser,
       };
       break;
@@ -442,8 +533,12 @@ export async function resolveRevealRow(state, key) {
       data = state.signals.locale;
       break;
     case 'hardware': {
-      const battery = await state.batteryPromise;
+      const [battery, storage] = await Promise.all([
+        state.batteryPromise,
+        state.storagePromise,
+      ]);
       state.signals.hardware.battery = battery;
+      state.signals.hardware.storage = storage;
       data = state.signals.hardware;
       break;
     }
@@ -462,6 +557,9 @@ export async function resolveRevealRow(state, key) {
       data = network;
       break;
     }
+    case 'arrival':
+      data = state.signals.arrival;
+      break;
     default:
       data = null;
   }
@@ -470,119 +568,178 @@ export async function resolveRevealRow(state, key) {
   return data;
 }
 
-function numberLine(label, value, fallback) {
-  return { label, value: value === 0 || value ? String(value) : fallback };
+function present(value) {
+  if (value === 0) return true;
+  if (value === null || value === undefined || value === false) return false;
+  const text = String(value).trim();
+  return Boolean(text) && !/^(unknown|unknown os|unknown browser|n\/a|null|undefined|could not be determined)$/i.test(text);
+}
+
+function formatUtcOffset(minutes) {
+  if (!Number.isFinite(Number(minutes))) return '';
+  const total = Number(minutes);
+  const sign = total >= 0 ? '+' : '-';
+  const abs = Math.abs(total);
+  const hours = String(Math.floor(abs / 60)).padStart(2, '0');
+  const mins = String(abs % 60).padStart(2, '0');
+  return `UTC${sign}${hours}:${mins}`;
+}
+
+function formatStorage(storage) {
+  if (!storage || !Number.isFinite(Number(storage.quota)) || storage.quota <= 0) return '';
+  const gb = Number(storage.quota) / 1e9;
+  if (gb >= 1) return `${gb.toFixed(gb >= 10 ? 0 : 1)} GB`;
+  const mb = Number(storage.quota) / 1e6;
+  return `${Math.round(mb)} MB`;
 }
 
 export function formatRow(key, data, copy, lang = 'en') {
   const reveal = copy.reveal;
-  const fallback = reveal.notExposed || copy.common?.notAvailable || 'not exposed by your browser';
   const out = {
     key,
     label: reveal.labels[key] || key,
     why: reveal.why[key] || '',
-    summary: fallback,
+    summary: '',
     lines: [],
+    hidden: true,
+    signalCount: 0,
     scary: false,
   };
 
   try {
     if (!data) return out;
 
+    const lines = [];
+    const notes = [];
+    const summary = [];
+    const add = (label, value) => {
+      if (!present(value)) return false;
+      lines.push({ label, value: String(value) });
+      return true;
+    };
+    const note = (value) => {
+      if (present(value)) notes.push({ label: '', value: String(value) });
+    };
+
     if (key === 'device') {
-      const type = reveal.deviceType[data.type] || data.type || fallback;
-      const parsedOs = [data.uaParser?.osName || data.osName, data.uaParser?.osVersion || data.osVersion]
-        .filter(Boolean)
-        .join(' ') || fallback;
-      const parsedBrowser = [data.uaParser?.browserName || data.browserName, data.uaParser?.browserVersion || data.browserVersion]
-        .filter(Boolean)
-        .join(' ') || fallback;
-      out.summary = [type, parsedOs, parsedBrowser].join(' · ');
-      out.lines = [
-        { label: reveal.kind, value: type },
-        { label: reveal.os, value: parsedOs },
-        { label: reveal.browser, value: parsedBrowser },
-      ];
+      const type = reveal.deviceType[data.type] || data.type || '';
+      const os = [data.uaParser?.osName || data.osName, data.uaParser?.osVersion || data.osVersion]
+        .filter(present)
+        .join(' ');
+      const browser = [data.uaParser?.browserName || data.browserName, data.uaParser?.browserVersion || data.browserVersion]
+        .filter(present)
+        .join(' ');
+      const engine = data.uaParser?.engineName || '';
+      add(reveal.kind, type);
+      add(reveal.os, os);
+      add(reveal.browser, browser);
+      add(reveal.engine, engine);
+      add(reveal.architecture, data.architecture);
+      add(reveal.platformVersion, data.platformVersion);
+      summary.push(type, os, browser);
     } else if (key === 'brand') {
-      const brand = clean(data.brand) || fallback;
-      const model = clean(data.model) || fallback;
-      out.summary = `${brand} · ${model}`;
-      out.lines = [
-        { label: reveal.confidence, value: `${data.confidence}%` },
-        { label: reveal.because, value: data.evidence?.length ? data.evidence.join(' · ') : fallback },
-        { label: '', value: reveal.guessNotice },
-      ];
+      const brand = clean(data.brand);
+      const model = clean(data.model);
+      const usableBrand = brand && brand !== 'Unknown' ? brand : '';
+      const usableModel = model && !/^could not|^unknown/i.test(model) ? model : '';
+      if (!present(usableBrand) && !present(usableModel)) return out;
+      add(reveal.model, [usableBrand, usableModel].filter(present).join(' · '));
+      if (Number.isFinite(Number(data.confidence)) && data.confidence > 0) {
+        add(reveal.confidence, `${data.confidence}%`);
+      }
+      add(reveal.because, data.evidence?.length ? data.evidence.join(' · ') : '');
+      note(reveal.guessNotice);
+      summary.push(usableBrand, usableModel);
       out.scary = true;
     } else if (key === 'screen') {
-      if (data.width && data.height) {
-        out.summary = `${data.width} × ${data.height}`;
-        out.lines = [
-          { label: reveal.screenSize, value: `${data.width} × ${data.height}` },
-          { label: reveal.pixelRatio, value: data.dpr ? `${data.dpr}x` : fallback },
-          { label: reveal.touch, value: data.touchPoints ? String(data.touchPoints) : fallback },
-        ];
-      }
+      const resolution = data.width && data.height ? `${data.width} × ${data.height}` : '';
+      add(reveal.screenSize, resolution);
+      add(reveal.pixelRatio, data.dpr ? `${data.dpr}x` : '');
+      add(reveal.touch, Number.isFinite(data.touchPoints) ? String(data.touchPoints) : '');
+      add(reveal.viewport, data.innerWidth && data.innerHeight ? `${data.innerWidth} × ${data.innerHeight}` : '');
+      add(reveal.colorDepth, data.colorDepth ? `${data.colorDepth}-bit` : '');
+      add(reveal.orientation, data.orientation);
+      add(reveal.displayMode, data.displayMode);
+      summary.push(resolution);
     } else if (key === 'locale') {
-      const languages = data.languages?.length ? data.languages.join(', ') : fallback;
-      out.summary = languages;
-      out.lines = [
-        { label: reveal.languages, value: languages },
-        { label: reveal.timezone, value: data.timezone || fallback },
-        { label: reveal.localTime, value: data.localTime || fallback },
-      ];
+      const languages = data.languages?.length ? data.languages.join(', ') : '';
+      add(reveal.languages, languages);
+      add(reveal.timezone, data.timezone);
+      add(reveal.localTime, data.localTime);
+      add(reveal.utcOffset, formatUtcOffset(data.utcOffset));
+      add(reveal.calendar, data.calendar);
+      add(reveal.numbering, data.numberingSystem);
+      summary.push(languages);
     } else if (key === 'hardware') {
+      const connection = typeof data.connection === 'string'
+        ? { effectiveType: data.connection }
+        : data.connection || {};
       const battery = data.battery;
-      const batteryValue = battery && Number.isFinite(battery.level)
-        ? `${Math.round(battery.level * 100)}% ${battery.charging ? reveal.batteryCharging : reveal.batteryNotCharging}`
-        : fallback;
-      const pieces = [];
-      if (data.cores) pieces.push(`${data.cores} ${reveal.cores.toLowerCase()}`);
-      if (data.memory) pieces.push(`${data.memory} GB`);
-      if (data.connection) pieces.push(data.connection);
-      out.summary = pieces.length ? pieces.join(' · ') : fallback;
-      out.lines = [
-        numberLine(reveal.cores, data.cores, fallback),
-        { label: reveal.memory, value: data.memory ? `${data.memory} GB` : fallback },
-        { label: reveal.connection, value: data.connection || fallback },
-        { label: reveal.battery, value: batteryValue },
-        { label: reveal.theme, value: data.dark ? reveal.dark : reveal.light },
-        { label: reveal.motion, value: data.reducedMotion ? reveal.reduced : reveal.fullMotion },
-      ];
+      const batteryValue = battery && Number.isFinite(Number(battery.level))
+        ? `${Math.round(Number(battery.level) * 100)}% ${battery.charging ? reveal.batteryCharging : reveal.batteryNotCharging}`
+        : '';
+      const cores = Number(data.cores) || 0;
+      const memory = Number(data.memory) || 0;
+      add(reveal.cores, cores ? String(cores) : '');
+      add(reveal.memory, memory ? `${memory} GB` : '');
+      add(reveal.connection, connection.effectiveType);
+      add(reveal.downlink, Number.isFinite(Number(connection.downlink)) ? `${connection.downlink} Mbps` : '');
+      add(reveal.rtt, Number.isFinite(Number(connection.rtt)) ? `${connection.rtt} ms` : '');
+      if (connection.effectiveType) {
+        add(reveal.saveData, connection.saveData ? copy.common.on : copy.common.off);
+      }
+      add(reveal.storage, formatStorage(data.storage));
+      add(reveal.battery, batteryValue);
+      add(reveal.theme, data.dark ? reveal.dark : reveal.light);
+      add(reveal.contrast, data.contrast);
+      add(reveal.forcedColors, data.forcedColors ? copy.common.on : '');
+      add(reveal.pointer, data.pointer);
+      add(reveal.hover, data.hover);
+      add(reveal.motion, data.reducedMotion ? reveal.reduced : reveal.fullMotion);
+      summary.push(cores ? `${cores} ${reveal.cores}` : '', memory ? `${memory} GB` : '', connection.effectiveType, batteryValue);
     } else if (key === 'gpu') {
-      const renderer = clean(data.renderer);
-      out.summary = renderer || fallback;
-      out.lines = renderer
-        ? [{ label: 'GPU', value: renderer }]
-        : [{ label: 'GPU', value: fallback }];
+      add(reveal.labels.gpu, data.renderer);
+      add(reveal.vendor, data.vendor);
+      add(reveal.webglVersion, data.version);
+      add(reveal.maxTexture, data.maxTexture ? String(data.maxTexture) : '');
+      summary.push(data.renderer);
     } else if (key === 'fingerprint') {
-      const id = clean(data.id);
-      out.summary = id ? `SHA-256 · ${id}` : fallback;
-      out.lines = [
-        { label: reveal.fingerprintId, value: id || fallback },
-        {
-          label: reveal.fonts,
-          value: data.fonts ? `${data.fonts} ${reveal.fontsDetected}` : fallback,
-        },
-        { label: '', value: reveal.privateNoStore },
-      ];
+      add(reveal.fingerprintId, data.id ? `SHA-256 · ${data.id}` : '');
+      add(reveal.canvasHash, data.canvasId);
+      add(reveal.audioHash, data.audioId);
+      add(reveal.fonts, data.fonts ? `${data.fonts} ${reveal.fontsDetected}` : '');
+      note(reveal.privateNoStore);
+      summary.push(data.id ? `SHA-256 · ${data.id}` : '');
       out.scary = true;
     } else if (key === 'network') {
       if (data.ok) {
-        const place = [data.city, data.country].filter(Boolean).join(' · ');
-        out.summary = place || data.ip || fallback;
-        out.lines = [
-          { label: reveal.ip, value: data.ip || fallback },
-          { label: reveal.city, value: data.city || fallback },
-          { label: reveal.country, value: data.country || fallback },
-          { label: reveal.isp, value: data.isp || fallback },
-          { label: reveal.source, value: data.source || fallback },
-          { label: '', value: reveal.approximate },
-        ];
+        add(reveal.ip, data.ip);
+        add(reveal.city, data.city);
+        add(reveal.region, data.region);
+        add(reveal.country, data.country);
+        add(reveal.isp, data.isp);
+        add(reveal.asn, data.asn);
+        add(reveal.source, data.source);
+        note(reveal.approximate);
+        summary.push([data.city, data.region, data.country].filter(present).join(' · '), data.ip);
         out.scary = true;
       }
+    } else if (key === 'arrival') {
+      add(reveal.referrer, data.referrer);
+      summary.push(data.host, data.referrer);
+      out.scary = true;
     }
+
+    out.lines = [...lines, ...notes];
+    out.signalCount = lines.length;
+    out.hidden = lines.length === 0;
+    out.summary = summary.filter(present).join(' · ') || lines[0]?.value || '';
   } catch {
-    // A broken sensor returns the fallback row, never a broken page.
+    // A broken sensor is skipped entirely, never rendered as a broken page.
+    out.lines = [];
+    out.signalCount = 0;
+    out.hidden = true;
+    out.summary = '';
   }
 
   return out;
@@ -591,7 +748,8 @@ export function formatRow(key, data, copy, lang = 'en') {
 export function formatRows(state, copy, lang = 'en') {
   return REVEAL_ORDER
     .filter((key) => Object.prototype.hasOwnProperty.call(state.rows, key))
-    .map((key) => formatRow(key, state.rows[key], copy, lang));
+    .map((key) => formatRow(key, state.rows[key], copy, lang))
+    .filter((row) => !row.hidden);
 }
 
 function slugify(value, fallback) {

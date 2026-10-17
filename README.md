@@ -222,7 +222,7 @@ The full contract is in [`API.md`](API.md). In short:
 - No IP address, fingerprint, device model, geolocation, or revealed value is sent to Supabase.
 - The reveal is computed in the browser. Canvas/WebGL/audio/font signals stay in memory and on screen.
 - The only coordinates the app ever asks for are an **optional** browser geolocation prompt after a button click. They are rendered on screen and never stored or sent.
-- IP/city/carrier lookup is a direct browser request to `https://ipwho.is/`, with `https://www.cloudflare.com/cdn-cgi/trace` as a fallback. If both fail, the page still renders and shows “not available”.
+- IP/city/carrier lookup is a direct browser request to `https://ipwho.is/`, with `https://www.cloudflare.com/cdn-cgi/trace` as a fallback. If both fail, the Network row is omitted and the page continues normally. Missing browser signals are omitted too, so no empty “not exposed” titles are shown.
 - `reveal.js` and `guessDevice.js` cannot import `api.js`; a static unit test enforces this and checks for the Supabase URL.
 - `anon` cannot `SELECT` any table. The public can execute only `record_scan`, `record_event`, and `ping`.
 - Admin RPCs check `auth.uid() is not null`; public sign-up should be disabled.
@@ -290,8 +290,8 @@ Some in-app browsers and link previews use bot-like user agents. The row is stor
 **The QR preview or poster is blank / “QR library failed to load.”**
 The pinned CDN script did not load. Check the browser Network tab and your network policy. The rest of the dashboard still works without the CDN.
 
-**The IP/city row says “not exposed by your browser.”**
-The third-party lookup was blocked, rate-limited, or offline. The page is designed to keep rendering. This does not affect scan tracking.
+**The IP/city row is missing.**
+The third-party lookup was blocked, rate-limited, or offline. The page is designed to omit that row and keep rendering. This does not affect scan tracking. Browser signals that are not exposed are omitted for the same reason.
 
 **Supabase is paused.**
 Restore the project from the Supabase dashboard, then manually run **Keep Supabase awake** from GitHub Actions. Check the repository secrets.

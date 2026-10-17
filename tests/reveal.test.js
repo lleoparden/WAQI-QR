@@ -19,10 +19,33 @@ test('formatRow renders values and a why-line', () => {
   assert.equal(row.scary, true);
 });
 
-test('formatRow returns the honest fallback for missing data', () => {
+test('formatRow hides a row when the browser exposes nothing', () => {
   const row = formatRow('network', null, content.en, 'en');
-  assert.equal(row.summary, 'not exposed by your browser');
-  assert.deepEqual(row.lines, []);
+  assert.equal(row.hidden, true);
+  assert.equal(row.signalCount, 0);
+  assert.equal(row.summary, '');
+});
+
+test('missing sub-values are omitted instead of rendered as placeholders', () => {
+  const row = formatRow('hardware', {
+    cores: 8,
+    memory: 0,
+    connection: null,
+    storage: null,
+    battery: null,
+    dark: true,
+    contrast: 'no-preference',
+    forcedColors: false,
+    pointer: 'fine',
+    hover: 'hover',
+    reducedMotion: false,
+  }, content.en, 'en');
+
+  assert.equal(row.hidden, false);
+  assert.ok(row.lines.some((line) => line.label === 'CPU threads'));
+  assert.equal(row.lines.some((line) => line.label === 'Battery'), false);
+  assert.equal(row.lines.some((line) => line.label === 'Device memory'), false);
+  assert.equal(row.lines.some((line) => line.value === 'not exposed by your browser'), false);
 });
 
 test('scam cards fill the visitor data and use reserved domains', () => {

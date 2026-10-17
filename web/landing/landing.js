@@ -139,6 +139,7 @@ function applyStatic() {
   $('#scanner-tag').textContent = copy.ui.terminalLocal;
   $('#reveal-path').textContent = copy.ui.terminalProfile;
   $('#reveal-tag').textContent = copy.ui.terminalNoServer;
+  $('#profile-stamp').textContent = copy.ui.terminalLocal;
   $('#qr-caption').textContent = copy.ui.qrCaption;
   document.querySelector('.header-nav')?.setAttribute('aria-label', copy.nav.menuLabel);
   document.querySelector('.privacy-tape')?.setAttribute('aria-label', copy.nav.privacy);
@@ -282,6 +283,7 @@ async function startReveal() {
       data = null;
     }
     const row = formatRow(key, data, state.copy, state.lang);
+    if (row.hidden) continue;
     index += 1;
     await appendRow(row, index);
     await sleep(state.reducedMotion ? 0 : 360);
@@ -289,6 +291,7 @@ async function startReveal() {
 
   $('#reveal-loading').hidden = true;
   $('#reveal-foot').hidden = false;
+  renderProfileSummary();
   showPostReveal();
   observeRevealEnd();
 }
@@ -357,6 +360,49 @@ function renderRevealRows() {
     article.classList.add('is-settled');
     container.append(article);
   });
+  renderProfileSummary();
+}
+
+function renderProfileSummary() {
+  if (!state.revealState) return;
+  const rows = formatRows(state.revealState, state.copy, state.lang);
+  const count = rows.reduce((total, row) => total + Number(row.signalCount || 0), 0);
+  const summary = $('#profile-summary');
+  summary.hidden = count === 0;
+  $('#profile-signal-count').textContent = String(count);
+
+  const signals = state.revealState.signals;
+  const chips = [];
+  const addChip = (value) => {
+    const text = String(value || '').trim();
+    if (text && !chips.includes(text)) chips.push(text);
+  };
+
+  const brand = signals.brand?.brand;
+  const model = signals.brand?.model;
+  if (brand && brand !== 'Unknown' && brand !== 'Desktop') {
+    addChip(model ? `${brand} ${model}` : brand);
+  } else if (model) {
+    addChip(model);
+  }
+  if (signals.network?.city) addChip(signals.network.city);
+  if (Number.isFinite(signals.hardware?.battery?.level)) {
+    addChip(`${Math.round(signals.hardware.battery.level * 100)}% ${state.copy.reveal.battery}`);
+  }
+  const browser = signals.uaParser?.browserName || signals.parsed?.browserName;
+  const browserVersion = signals.uaParser?.browserVersion || signals.parsed?.browserVersion;
+  if (browser && browser !== 'Unknown browser') {
+    addChip(`${browser}${browserVersion ? ` ${browserVersion}` : ''}`);
+  }
+  if (signals.fingerprint?.fonts) {
+    addChip(`${signals.fingerprint.fonts} ${state.copy.reveal.fontsChip}`);
+  }
+  if (signals.fingerprint?.id) addChip(`#${signals.fingerprint.id.slice(0, 6)}`);
+  if (signals.network?.isp) addChip(signals.network.isp);
+  if (signals.network?.asn) addChip(signals.network.asn);
+
+  const container = $('#profile-chips');
+  container.replaceChildren(...chips.slice(0, 7).map((chip) => el('span', 'profile-chip', chip)));
 }
 
 function showPostReveal() {

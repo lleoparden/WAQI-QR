@@ -10,7 +10,7 @@ Use this after the Supabase project and GitHub Pages site are configured. The au
 npm test
 ```
 
-Expected: **41 tests pass**, with no skipped tests.
+Expected: **42 tests pass**, with no skipped tests.
 
 The suite covers:
 
@@ -208,7 +208,7 @@ No revealed device, network, fingerprint, or coordinates may appear in localStor
 
 1. Open DevTools → Network → **Block request URL** for `https://ipwho.is/` and `https://www.cloudflare.com/cdn-cgi/trace`.
 2. Reload the landing page.
-3. **Expected:** all eight reveal rows still appear. The Network row shows “not exposed by your browser” / “could not be determined” and the page continues to the scammer simulation, quiz, good-news, WAQI, share, and transparency sections.
+3. **Expected:** all available reveal rows still appear. The Network row is omitted; the page continues to the scammer simulation, quiz, good-news, WAQI, share, and transparency sections. No “not exposed” placeholder title appears.
 4. The scam cards use the generic carrier/city fallback and still carry **SIMULATION** badges.
 5. Unblock and reload; the Network row populates again.
 6. Also test with the device offline: the page shell, reveal rows, quiz, and share card must still work. The scan/event calls fail silently.
@@ -239,6 +239,8 @@ Covered sample user agents:
 
 Also open the page on a phone and confirm the evidence line under the brand guess says **because:** model code/screen/GPU and ends with “This is a guess, not a certainty.” / Arabic equivalent.
 
+At the end of the reveal, confirm **PROFILE READY** shows a non-zero signal count and only chips backed by real data (device, city, battery, browser, fonts, fingerprint). Missing data must not produce an empty chip.
+
 ---
 
 ## 9. Static privacy guard
@@ -265,7 +267,7 @@ grep -nE "api\.js|record_scan|record_event|localStorage|SUPABASE_URL|rest/v1" we
 
 - Open the landing page.
 - Confirm RTL Arabic and LTR English switch correctly.
-- Confirm the battery row says “not exposed by your browser” (Safari lacks `navigator.getBattery`).
+- Confirm the battery line is omitted (Safari lacks `navigator.getBattery`), while the rest of the Hardware row remains.
 - Confirm the user-agent row still identifies iOS and Safari.
 - Tap the optional location button and deny permission.
   **Expected:** a graceful denial message, no coordinates, no request to Supabase.
@@ -278,7 +280,7 @@ grep -nE "api\.js|record_scan|record_event|localStorage|SUPABASE_URL|rest/v1" we
 ### Android Chrome
 
 - Battery, connection, GPU, and high-entropy client hints should populate where available.
-- Missing APIs (for example `deviceMemory`) show “not exposed by your browser”, never an error.
+- Missing APIs (for example `deviceMemory`) omit their line instead of showing an empty “not exposed” entry.
 - Test both dark and light system themes; the page remains dark by design but the `Color scheme` row reflects the OS setting.
 - Test the share sheet with a file; otherwise the download fallback must work.
 - Scan from the phone camera and confirm the count in the dashboard.
@@ -383,6 +385,6 @@ grep -nE "api\.js|record_scan|record_event|localStorage|SUPABASE_URL|rest/v1" we
 - Anonymous table access fails; admin access requires login.
 - The Network tab shows only `record_scan` and whitelisted `record_event` calls to Supabase.
 - Blocking the IP lookup does not blank the page.
-- iOS Safari and Android Chrome both complete the flow with missing APIs rendered as “not exposed by your browser”.
+- iOS Safari and Android Chrome both complete the flow with unavailable signals omitted, and the page shows no empty titles.
 - QR PNG, SVG, and 300-DPI A5/A4 posters are scannable and print correctly.
 - The share card never contains visitor data unless explicitly ticked, and never uploads the image.

@@ -708,6 +708,111 @@ h3 {
   line-height: 1.65;
 }
 
+.profile-summary {
+  position: relative;
+  margin-block-start: 1.35rem;
+  padding: 1rem;
+  border: 1px solid rgba(255, 90, 31, 0.48);
+  border-radius: 14px;
+  background:
+    radial-gradient(420px 180px at 100% 0%, rgba(255, 90, 31, 0.22), transparent 72%),
+    linear-gradient(145deg, rgba(255, 90, 31, 0.08), rgba(0, 0, 0, 0.18));
+  overflow: hidden;
+}
+
+.profile-summary::before {
+  content: "";
+  position: absolute;
+  inset-block-start: 0;
+  inset-inline: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--orange), transparent);
+}
+
+.profile-summary-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.profile-kicker {
+  margin: 0 0 0.2rem;
+  color: var(--orange);
+  font-family: var(--font-mono);
+  font-size: 0.58rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.profile-count {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.45rem;
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.78rem;
+  line-height: 1.35;
+}
+
+.profile-count strong {
+  color: var(--ink);
+  font-family: var(--font-mono);
+  font-size: clamp(2rem, 6vw, 2.9rem);
+  letter-spacing: -0.05em;
+  line-height: 1;
+}
+
+.profile-stamp {
+  padding: 0.2rem 0.4rem;
+  border: 1px solid rgba(255, 90, 31, 0.55);
+  border-radius: 4px;
+  color: var(--orange);
+  font-family: var(--font-mono);
+  font-size: 0.52rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+}
+
+.profile-warning {
+  margin-block: 0.9rem 0;
+  padding-inline-start: 0.75rem;
+  border-inline-start: 2px solid var(--orange);
+  color: var(--ink);
+  font-size: 0.92rem;
+  font-weight: 700;
+  line-height: 1.5;
+}
+
+.profile-chips-label {
+  margin-block: 0.9rem 0.4rem;
+  color: var(--dim);
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.profile-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.profile-chip {
+  padding: 0.26rem 0.5rem;
+  border: 1px solid rgba(244, 241, 232, 0.17);
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.22);
+  color: #dce4ec;
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+
 .optin {
   margin-block-start: 1.4rem;
   padding: 1rem;
@@ -1561,12 +1666,12 @@ h3 {
   }
 
   .row-line {
-    grid-template-columns: 1fr;
-    gap: 0.05rem;
+    grid-template-columns: minmax(78px, 0.38fr) minmax(0, 1fr);
+    gap: 0.35rem;
   }
 
   .row-line > :first-child {
-    font-size: 0.66rem;
+    font-size: 0.6rem;
   }
 
   .privacy-tape {
