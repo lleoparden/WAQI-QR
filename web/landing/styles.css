@@ -255,29 +255,6 @@ h1 {
   text-wrap: pretty;
 }
 
-.source-chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.65rem;
-  max-width: 100%;
-  padding: 0.45rem 0.65rem;
-  border: 1px dashed var(--line-strong);
-  border-radius: 999px;
-  color: var(--muted);
-  font-size: 0.75rem;
-}
-
-.source-chip code {
-  max-width: 55vw;
-  overflow: hidden;
-  color: var(--ink);
-  font-family: var(--font-mono);
-  font-size: 0.75rem;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  direction: ltr;
-}
-
 .hint {
   margin-block: 1.1rem 0;
   color: var(--dim);
@@ -1607,8 +1584,7 @@ h3 {
   text-align: start;
 }
 
-[dir="rtl"] .terminal-path,
-[dir="rtl"] .source-chip code {
+[dir="rtl"] .terminal-path {
   direction: ltr;
 }
 

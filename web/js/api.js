@@ -286,6 +286,10 @@ export async function exportScans(qrId = null) {
   return adminRpc('export_scans_csv', { p_qr_id: qrId });
 }
 
+export async function getRecentScans(limit = 20) {
+  return adminRpc('get_recent_scans', { p_limit: limit });
+}
+
 // ---------------------------------------------------------------------------
 // Admin writes
 // ---------------------------------------------------------------------------

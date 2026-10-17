@@ -291,6 +291,34 @@ Returns an array of rows:
 
 Sort order: active first, then newest created.
 
+### `get_recent_scans`
+
+```http
+POST /rest/v1/rpc/get_recent_scans
+
+{ "p_limit": 20 }
+```
+
+- `p_limit`: clamped to `1..100`, default `20`.
+- Requires an authenticated admin.
+- Newest first. This is the dashboard's **Latest scans** feed; every row includes the QR slug and label.
+
+```json
+[
+  {
+    "id": 123,
+    "created_at": "2026-01-01T10:00:00+00:00",
+    "qr_id": "uuid",
+    "slug": "gate-test",
+    "label": "Campus gate",
+    "visitor_id": "0b0f...",
+    "is_bot": false
+  }
+]
+```
+
+If the `0003_recent_scans.sql` migration has not been applied, the dashboard falls back to `export_scans_csv` for this feed.
+
 ### `get_timeseries`
 
 ```http

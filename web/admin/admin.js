@@ -6,6 +6,7 @@ import {
   getHourlyHeatmap,
   getOverview,
   getQrStats,
+  getRecentScans,
   getSession,
   getTimeseries,
   getVariantComparison,
@@ -20,6 +21,7 @@ const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
 
 const state = {
   rows: [],
+  recent: [],
   overview: null,
   charts: {},
   sort: { key: 'created_at', dir: 'desc' },
@@ -282,8 +284,15 @@ async function loadDashboard({ quiet = false } = {}) {
     const [overview, rows] = await Promise.all([getOverview(), getQrStats()]);
     state.overview = overview || {};
     state.rows = Array.isArray(rows) ? rows : [];
+    try {
+      state.recent = await loadRecentScans();
+    } catch (error) {
+      if (error?.status === 401) throw error;
+      state.recent = [];
+    }
     renderOverview();
     renderTable();
+    renderRecentScans();
     populateQrFilter();
     await loadCharts();
     $('#last-updated').textContent = `Synced ${new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}`;
@@ -293,6 +302,54 @@ async function loadDashboard({ quiet = false } = {}) {
     handleApiError(error);
   } finally {
     state.loading = false;
+  }
+}
+
+async function loadRecentScans() {
+  try {
+    const rows = await getRecentScans(20);
+    return Array.isArray(rows) ? rows : [];
+  } catch (error) {
+    if (error?.status !== 404) throw error;
+    // 0003 migration not applied yet: fall back to the existing export RPC.
+    const rows = await exportScans(null);
+    return (Array.isArray(rows) ? rows : []).slice(0, 20);
+  }
+}
+
+function renderRecentScans() {
+  const body = $('#recent-tbody');
+  body.replaceChildren();
+  const rows = Array.isArray(state.recent) ? state.recent : [];
+  $('#recent-empty').hidden = rows.length > 0;
+
+  for (const row of rows) {
+    const tr = document.createElement('tr');
+
+    const time = document.createElement('td');
+    time.className = 'muted';
+    time.textContent = formatDate(row.created_at);
+
+    const qr = document.createElement('td');
+    qr.className = 'mono';
+    qr.textContent = row.slug || '—';
+
+    const label = document.createElement('td');
+    label.textContent = row.label || '—';
+
+    const visitor = document.createElement('td');
+    visitor.className = 'mono muted';
+    visitor.textContent = row.visitor_id ? `${String(row.visitor_id).slice(0, 8)}…` : '—';
+    if (row.visitor_id) visitor.title = String(row.visitor_id);
+
+    const type = document.createElement('td');
+    const badge = document.createElement('span');
+    badge.className = `scan-badge${row.is_bot ? ' is-bot' : ''}`;
+    badge.textContent = row.is_bot ? 'Bot' : 'Human';
+    type.append(badge);
+
+    tr.append(time, qr, label, visitor, type);
+    body.append(tr);
   }
 }
 
@@ -807,17 +864,6 @@ async function drawPoster() {
       // A bad logo must not stop the poster export.
     }
   }
-
-  const url = landingUrl(state.preview.slug);
-  ctx.textAlign = 'center';
-  ctx.direction = 'ltr';
-  ctx.fillStyle = ink;
-  let urlSize = Math.round(W * 0.019);
-  do {
-    ctx.font = `600 ${urlSize}px ui-monospace, Consolas, monospace`;
-    urlSize -= 2;
-  } while (ctx.measureText(url).width > maxWidth && urlSize > 10);
-  ctx.fillText(url, W / 2, qrY + qrSize + cardPad + W * 0.055);
 
   ctx.textAlign = rtl ? 'right' : 'left';
   ctx.direction = rtl ? 'rtl' : 'ltr';

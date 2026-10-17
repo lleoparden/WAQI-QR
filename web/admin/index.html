@@ -182,6 +182,33 @@
       </div>
     </section>
 
+    <section class="admin-section" aria-labelledby="recent-title">
+      <div class="panel">
+        <div class="panel-head">
+          <div>
+            <p class="admin-eyebrow">LIVE FEED</p>
+            <h2 id="recent-title">Latest scans</h2>
+          </div>
+          <span class="sync-note">Newest 20 · which QR was scanned</span>
+        </div>
+        <div class="table-wrap">
+          <table class="qr-table">
+            <thead>
+              <tr>
+                <th>Time</th>
+                <th>QR scanned</th>
+                <th>Label</th>
+                <th>Visitor</th>
+                <th>Type</th>
+              </tr>
+            </thead>
+            <tbody id="recent-tbody"></tbody>
+          </table>
+        </div>
+        <p class="empty-state" id="recent-empty" hidden>No scans yet. Scan a QR to see it here.</p>
+      </div>
+    </section>
+
     <section class="admin-section chart-section" aria-labelledby="charts-title">
       <div class="section-title-row">
         <div>

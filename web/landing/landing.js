@@ -93,7 +93,6 @@ function setLanguage(next, { emit = true } = {}) {
   }
 
   applyStatic();
-  updateSource();
 
   if (!state.scanFinished) {
     if (state.scanStarted) startScanning();
@@ -155,14 +154,6 @@ function applyStatic() {
 
   const list = $('#transparency-list');
   list.replaceChildren(...copy.transparency.points.map((point) => el('li', '', point)));
-
-  updateSource();
-}
-
-function updateSource() {
-  const node = $('#source-slug');
-  if (!node) return;
-  node.textContent = state.slug ? `?src=${state.slug}` : state.copy.hero.unknownSource;
 }
 
 function armScanner() {

@@ -558,6 +558,26 @@ h3 {
   gap: 0.3rem;
 }
 
+.scan-badge {
+  display: inline-block;
+  padding: 0.16rem 0.42rem;
+  border: 1px solid rgba(87, 217, 163, 0.55);
+  border-radius: 999px;
+  background: rgba(87, 217, 163, 0.1);
+  color: var(--green);
+  font-family: var(--font-mono);
+  font-size: 0.56rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.scan-badge.is-bot {
+  border-color: rgba(255, 107, 107, 0.45);
+  background: rgba(255, 107, 107, 0.08);
+  color: var(--red);
+}
+
 .toggle {
   width: 34px;
   height: 19px;

@@ -18,6 +18,7 @@ Everything runs on free tiers:
 ```
 supabase/migrations/0001_init.sql   tables, RLS, RPCs, view, grants
 supabase/migrations/0002_fix_create_qr_slug.sql   auto-slug fix for Supabase
+supabase/migrations/0003_recent_scans.sql         latest-scans feed, per QR
 web/
   config.js                         SUPABASE_URL, ANON_KEY, LANDING_BASE_URL
   js/api.js                         the only file that talks to Supabase
@@ -69,8 +70,9 @@ The flow is: QR → `/?src=<slug>` → `web/index.html` redirects to `/landing/?
 4. Paste it into the SQL editor and click **Run**.
 5. You should see **Success. No rows returned**.
 6. Repeat with [`0002_fix_create_qr_slug.sql`](supabase/migrations/0002_fix_create_qr_slug.sql). This replaces the auto-slug generator with `gen_random_uuid()` so it does not depend on the `pgcrypto` search path.
+7. Repeat with [`0003_recent_scans.sql`](supabase/migrations/0003_recent_scans.sql). This powers the dashboard's **Latest scans** feed and shows which QR each scan belongs to.
 
-If you already ran an older `0001_init.sql`, you only need to run `0002_fix_create_qr_slug.sql`. It is idempotent, does not delete data, and runs `notify pgrst, 'reload schema';`.
+If you already ran an older `0001_init.sql`, run `0002` and `0003`. They are idempotent, do not delete data, and run `notify pgrst, 'reload schema';`.
 
 The file is idempotent: running it again is safe. It creates the tables, indexes, RLS policies, public RPCs, admin RPCs, the stats view, and all grants.
 
@@ -255,7 +257,8 @@ If you replace the frontend, do not change the privacy contract: no IP, fingerpr
 - **Goal tracker:** target saved in the browser’s local storage, progress from human scans.
 - **Create QR:** label, placement, optional slug, optional A/B variant. Auto-generates an 8-character slug.
 - **QR table:** sortable columns, preview, edit label/placement/variant/dates, active toggle.
-- **Print assets:** PNG, SVG, and a poster tile at A5/A4 pixel dimensions with a real 300-DPI `pHYs` chunk, configurable CTA, optional logo, and high error correction.
+- **Latest scans:** newest 20 scans with the QR slug and label, visitor prefix, and human/bot badge. This makes every tracker row attributable to a specific QR.
+- **Print assets:** PNG, SVG, and a poster tile at A5/A4 pixel dimensions with a real 300-DPI `pHYs` chunk, configurable CTA, optional logo, and high error correction. The poster carries the QR only — no URL text.
 - **Charts:** scans over time, Africa/Cairo weekday × hour heatmap, funnel, A/B variant rates.
 - **CSV:** per-QR stats and raw non-PII scan rows (50,000-row cap).
 - **Auto-refresh:** every 30 seconds while the tab is visible.

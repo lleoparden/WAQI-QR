@@ -10,7 +10,7 @@ Use this after the Supabase project and GitHub Pages site are configured. The au
 npm test
 ```
 
-Expected: **45 tests pass**, with no skipped tests.
+Expected: **47 tests pass**, with no skipped tests.
 
 The suite covers:
 
@@ -237,7 +237,7 @@ Covered sample user agents:
 | Oppo `CPH2477` | Oppo, model code shown |
 | Generic UA + client-hint `SM-A145` | Samsung, Galaxy A14 |
 
-Also open the page on a phone and confirm the evidence line under the brand guess says **because:** model code/screen/GPU and ends with “This is a guess, not a certainty.” / Arabic equivalent.
+Also open the page on a phone and confirm the evidence line under the brand guess says **because:** model code/screen/GPU and ends with “This is a guess, not a certainty.” / Arabic equivalent. Unmapped Android codes must produce a broad range such as “Samsung Galaxy phone (model range)”, not an invented exact model.
 
 At the end of the reveal, confirm **PROFILE READY** shows a non-zero signal count and only chips backed by real data (device, city, battery, browser, fonts, fingerprint). Missing data must not produce an empty chip.
 
@@ -291,9 +291,10 @@ grep -nE "api\.js|record_scan|record_event|localStorage|SUPABASE_URL|rest/v1" we
 
 1. Create a QR with a custom slug and variant.
 2. **Expected:** preview panel opens; URL is `<LANDING_BASE_URL>/?src=<slug>`; QR is high-error-correction (level H).
+3. Open **Latest scans**. Each row shows the QR slug, label, visitor prefix, and Human/Bot badge. A scan of two different QRs must appear as two different rows.
 3. **Download PNG** and scan it with a phone; it must open the landing page with the right slug.
 4. **Download SVG**; open it in a browser or Illustrator/Inkscape; it must be crisp at large print sizes.
-5. **Download poster tile (300 DPI)** for A5 and A4.
+5. **Download poster tile (300 DPI)** for A5 and A4. The poster carries the QR only — no URL text.
 6. Verify dimensions and DPI metadata:
 
    ```bash

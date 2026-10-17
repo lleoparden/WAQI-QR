@@ -207,23 +207,15 @@ function androidBrand(modelCode, modelHint, ua) {
   return 'Unknown Android brand';
 }
 
-function androidModel(code, hint, brand) {
-  const cleanHint = clean(hint);
-  if (brand === 'Samsung') {
-    const mapped = matchCode(code, ANDROID_SAMSUNG);
-    if (mapped) return `Galaxy ${mapped.replace(/^Galaxy\s+/i, '')}`;
+function androidModel(brand, exact) {
+  if (exact) {
+    if (brand === 'Samsung') return `Galaxy ${exact.replace(/^Galaxy\s+/i, '')}`;
+    return exact;
   }
-  if (brand === 'Huawei') {
-    const mapped = matchCode(code, HUAWEI);
-    if (mapped) return mapped;
-  }
-  if (brand === 'Xiaomi') {
-    const mapped = matchCode(code, XIAOMI);
-    if (mapped) return mapped;
-  }
-  if (cleanHint && cleanHint.length <= 40) return cleanHint;
-  if (code) return `${brand} device (${code})`;
-  return `${brand} device (model not exposed)`;
+  if (brand === 'Unknown Android brand') return 'Android phone (model range)';
+  if (brand === 'Google') return 'Google Pixel-class Android phone';
+  if (brand === 'Samsung') return 'Samsung Galaxy phone (model range)';
+  return `${brand} Android phone (model range)`;
 }
 
 function screenKey(width, height, dpr) {
@@ -303,15 +295,15 @@ export function guessDevice(input = {}) {
 
     if (parsed.osName === 'Android') {
       const brand = androidBrand(modelCode, modelHint, `${parserVendor} ${userAgent}`);
-      const model = androidModel(modelCode, modelHint, brand);
       const exact = matchCode(modelCode, ANDROID_SAMSUNG)
         || matchCode(modelCode, HUAWEI)
         || matchCode(modelCode, XIAOMI);
+      const model = androidModel(brand, exact);
       let confidence = 45;
-      if (brand === 'Unknown Android brand') confidence = 35;
+      if (brand === 'Unknown Android brand') confidence = 30;
       else if (exact) confidence = 92;
-      else if (modelCode) confidence = 82;
-      else if (brand !== 'Unknown Android brand') confidence = 68;
+      else if (modelCode) confidence = 72;
+      else if (brand !== 'Unknown Android brand') confidence = 62;
 
       return result(brand, model, confidence, [
         modelCode ? `model code ${modelCode}` : '',

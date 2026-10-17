@@ -134,6 +134,18 @@ test('the create_qr slug generator does not depend on pgcrypto search_path', asy
   assert.match(fix, /notify pgrst, 'reload schema'/);
 });
 
+test('the latest-scans feed is admin-only and identifies the scanned QR', async () => {
+  const sql = await read('supabase/migrations/0003_recent_scans.sql');
+  assert.match(sql, /create or replace function public\.get_recent_scans/);
+  assert.match(sql, /perform public\._require_admin\(\)/);
+  assert.match(sql, /q\.slug/);
+  assert.match(sql, /q\.label/);
+  assert.match(sql, /from public\.scans s/);
+  assert.match(sql, /join public\.qr_codes q/);
+  assert.match(sql, /grant execute on function public\.get_recent_scans\(integer\)\s+to authenticated, service_role/);
+  assert.doesNotMatch(sql, /to anon/);
+});
+
 test('admin pages are marked noindex', async () => {
   for (const file of ['web/admin/index.html', 'web/admin/login.html']) {
     const html = await read(file);

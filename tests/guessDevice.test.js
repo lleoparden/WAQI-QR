@@ -82,7 +82,7 @@ test('Firefox Android with no model code degrades honestly', () => {
   assert.match(result.model, /Android|Unknown/);
 });
 
-test('Oppo model code is recognised from the CPH pattern', () => {
+test('Oppo model code is recognised but the model stays broad when unmapped', () => {
   const result = guessDevice({
     userAgent: OPPO_UA,
     screen: { width: 360, height: 800 },
@@ -91,7 +91,24 @@ test('Oppo model code is recognised from the CPH pattern', () => {
   });
 
   assert.equal(result.brand, 'Oppo');
-  assert.match(result.model, /CPH2477/);
+  assert.match(result.model, /Oppo Android phone/);
+  assert.match(result.model, /range/);
+  assert.ok(result.evidence.some((item) => item.includes('CPH2477')));
+});
+
+test('an unmapped Samsung code becomes a range, not a fake exact model', () => {
+  const result = guessDevice({
+    userAgent: 'Mozilla/5.0 (Linux; Android 14; SM-Z999X Build/UP1A) AppleWebKit/537.36 Chrome/124.0.0.0 Mobile Safari/537.36',
+    screen: { width: 360, height: 800 },
+    devicePixelRatio: 3,
+    touchPoints: 5,
+  });
+
+  assert.equal(result.brand, 'Samsung');
+  assert.match(result.model, /Samsung Galaxy phone/);
+  assert.match(result.model, /range/);
+  assert.ok(result.confidence < 80);
+  assert.ok(result.evidence.some((item) => item.includes('SM-Z999X')));
 });
 
 test('high-entropy client hint model is used when the UA is generic', () => {
