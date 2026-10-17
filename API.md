@@ -567,7 +567,7 @@ It must never store or accept:
 - canvas/WebGL/audio/font fingerprints
 - device model/brand guesses
 - city/country/ISP from the IP lookup
-- GPS coordinates (the optional geolocation prompt renders on screen only)
+- GPS coordinates (the optional geolocation prompt renders on screen only; the optional OpenStreetMap embed receives them directly from the browser to draw the map, never through this backend)
 - any scan payload, form field, or free text
 
 There is no `payload` column by design. Do not add one.

@@ -228,7 +228,7 @@ The full contract is in [`API.md`](API.md). In short:
 - `record_event` stores only a slug, visitor ID, and one of eight fixed event names. There is no payload column in the database.
 - No IP address, fingerprint, device model, geolocation, or revealed value is sent to Supabase.
 - The reveal is computed in the browser. Canvas/WebGL/audio/font signals stay in memory and on screen.
-- The only coordinates the app ever asks for are an **optional** browser geolocation prompt after a button click. They are rendered on screen and never stored or sent.
+- The only coordinates the app ever asks for are an **optional** browser geolocation prompt after a button click. They are rendered on screen and never stored by us. When you allow it, the page also loads an OpenStreetMap embed; that provider receives the coordinates to draw the map, which the page discloses before/with the result.
 - IP/city/carrier lookup is a direct browser request to `https://ipwho.is/`, with `https://www.cloudflare.com/cdn-cgi/trace` as a fallback. If both fail, the Network row is omitted and the page continues normally. Missing browser signals are omitted too, so no empty “not exposed” titles are shown.
 - `reveal.js` and `guessDevice.js` cannot import `api.js`; a static unit test enforces this and checks for the Supabase URL.
 - `anon` cannot `SELECT` any table. The public can execute only `record_scan`, `record_event`, and `ping`.

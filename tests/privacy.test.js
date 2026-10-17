@@ -146,6 +146,15 @@ test('the latest-scans feed is admin-only and identifies the scanned QR', async 
   assert.doesNotMatch(sql, /to anon/);
 });
 
+test('the optional map is an explicit OpenStreetMap embed loaded only from geolocation state', async () => {
+  const landing = await read('web/landing/landing.js');
+  const html = await read('web/landing/index.html');
+  assert.match(landing, /openstreetmap\.org\/export\/embed\.html/);
+  assert.match(html, /id="geo-map"/);
+  assert.doesNotMatch(html, /id="geo-map"[^>]*src=/);
+  assert.match(landing, /map\.src = mapUrl\(state\.geo\.lat, state\.geo\.lon, state\.geo\.accuracy\)/);
+});
+
 test('admin pages are marked noindex', async () => {
   for (const file of ['web/admin/index.html', 'web/admin/login.html']) {
     const html = await read(file);

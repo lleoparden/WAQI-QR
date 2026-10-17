@@ -151,6 +151,7 @@ function applyStatic() {
   $('#waqi-cta').href = copy.waqi.ctaUrl || '#waqi';
   $('#transparency-live').textContent = copy.transparency.live;
   $('#geo-note').textContent = copy.reveal.optIn.note;
+  $('#geo-map').title = copy.reveal.optIn.mapTitle;
 
   const list = $('#transparency-list');
   list.replaceChildren(...copy.transparency.points.map((point) => el('li', '', point)));
@@ -704,6 +705,18 @@ async function onDownload() {
   }
 }
 
+function mapUrl(lat, lon, accuracy) {
+  const latitude = Number(lat);
+  const longitude = Number(lon);
+  const radius = Math.max(0.003, (Number(accuracy) || 50) / 111000 * 3);
+  const lonRadius = radius / Math.max(0.2, Math.cos(latitude * Math.PI / 180));
+  const left = (longitude - lonRadius).toFixed(5);
+  const right = (longitude + lonRadius).toFixed(5);
+  const top = (latitude + radius).toFixed(5);
+  const bottom = (latitude - radius).toFixed(5);
+  return `https://www.openstreetmap.org/export/embed.html?bbox=${left},${bottom},${right},${top}&layer=mapnik&marker=${latitude},${longitude}`;
+}
+
 function renderGeo() {
   if (!state.geo) return;
   const result = $('#geo-result');
@@ -713,6 +726,11 @@ function renderGeo() {
     '{meters}',
     Math.round(state.geo.accuracy || 0)
   );
+  const mapWrap = $('#geo-map-wrap');
+  const map = $('#geo-map');
+  mapWrap.hidden = false;
+  map.title = state.copy.reveal.optIn.mapTitle;
+  map.src = mapUrl(state.geo.lat, state.geo.lon, state.geo.accuracy);
   $('#geo-status').textContent = '';
   $('#geo-button').disabled = false;
 }

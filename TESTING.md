@@ -10,7 +10,7 @@ Use this after the Supabase project and GitHub Pages site are configured. The au
 npm test
 ```
 
-Expected: **47 tests pass**, with no skipped tests.
+Expected: **48 tests pass**, with no skipped tests.
 
 The suite covers:
 
@@ -348,9 +348,10 @@ grep -nE "api\.js|record_scan|record_event|localStorage|SUPABASE_URL|rest/v1" we
 2. **Expected:** the five-point list matches what the Network tab shows: slug, random visitor ID, UA, referrer, eight event names. No IP/fingerprint/device/location claims are contradicted by the implementation.
 3. The always-visible privacy bar is present on every scroll position and in both languages.
 4. Click **Show how precise my location could be**.
-5. Deny the permission. **Expected:** a denial message, no coordinates, no Supabase request.
-6. Allow it. **Expected:** latitude/longitude and accuracy appear on screen only; no Network request to Supabase; no localStorage entry. Reload and confirm the coordinates are gone.
-7. If the browser blocks geolocation entirely, show the “not available” message.
+5. Deny the permission. **Expected:** a denial message, no coordinates, no map iframe, no Supabase request.
+6. Allow it. **Expected:** latitude/longitude, accuracy, and an OpenStreetMap iframe appear; the page states that loading the map sends the coordinates to OpenStreetMap. There must be no Supabase request and no localStorage entry. Reload and confirm the coordinates and map are gone.
+7. Confirm the map iframe request only happens after the browser grants location, not on page load.
+8. If the browser blocks geolocation entirely, show the “not available” message.
 
 ---
 
