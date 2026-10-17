@@ -42,6 +42,12 @@ test('the quiz placeholder asset exists and is local', async () => {
   assert.match(svg, /PLACEHOLDER/);
 });
 
+test('admin generates a client-side slug when the field is left blank', async () => {
+  const admin = await read('web/admin/admin.js');
+  assert.match(admin, /function randomSlug\(\)/);
+  assert.match(admin, /\|\| randomSlug\(\)/);
+});
+
 test('documentation deliverables exist', async () => {
   for (const file of ['README.md', 'API.md', 'TESTING.md']) {
     const text = await read(file);

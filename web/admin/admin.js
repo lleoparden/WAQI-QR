@@ -82,6 +82,14 @@ function landingUrl(slug) {
   }
 }
 
+function randomSlug() {
+  try {
+    return globalThis.crypto.randomUUID().replace(/-/g, '').slice(0, 8);
+  } catch {
+    return Math.random().toString(36).slice(2, 10).padEnd(8, '0');
+  }
+}
+
 function showError(message = '') {
   const box = $('#admin-error');
   box.textContent = message;
@@ -605,7 +613,7 @@ async function onCreate(event) {
     const row = await createQr({
       label: $('#create-label').value.trim(),
       placement: $('#create-placement').value.trim(),
-      slug: $('#create-slug').value.trim(),
+      slug: $('#create-slug').value.trim() || randomSlug(),
       variant: $('#create-variant').value.trim(),
     });
     $('#create-form').reset();
