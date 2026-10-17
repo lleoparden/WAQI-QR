@@ -10,7 +10,7 @@ Use this after the Supabase project and GitHub Pages site are configured. The au
 npm test
 ```
 
-Expected: **48 tests pass**, with no skipped tests.
+Expected: **50 tests pass**, with no skipped tests.
 
 The suite covers:
 
@@ -231,7 +231,8 @@ Covered sample user agents:
 | --- | --- |
 | Samsung `SM-S918B`, 412×915 @3.5 | Samsung, Galaxy S23 Ultra, confidence ≥ 90 |
 | Xiaomi `2201117TG` | Xiaomi, Redmi Note 11, confidence ≥ 90 |
-| iPhone, 390×844 @3 | Apple, an “iPhone 12 / 13 / 14 class” range, never one exact model |
+| iPhone, 390×844 @3 | Apple, an “iPhone 12 / 13 / 14 / 16e class” range, never one exact model |
+| iPhone, 402×874 @3 | Apple, an “iPhone 17 / 17 Pro / 16 Pro class” range, never one exact model |
 | Windows desktop Chrome | Desktop / Windows, not a phone |
 | Firefox Android with no model | Low confidence, honest “unknown Android brand” fallback |
 | Oppo `CPH2477` | Oppo, model code shown |
@@ -239,7 +240,7 @@ Covered sample user agents:
 
 Also open the page on a phone and confirm the evidence line under the brand guess says **because:** model code/screen/GPU and ends with “This is a guess, not a certainty.” / Arabic equivalent. Unmapped Android codes must produce a broad range such as “Samsung Galaxy phone (model range)”, not an invented exact model.
 
-At the end of the reveal, confirm **PROFILE READY** shows a non-zero signal count and only chips backed by real data (device, city, battery, browser, fonts, fingerprint). Missing data must not produce an empty chip.
+At the end of the reveal, confirm **PROFILE READY** shows a non-zero signal count and only chips backed by real data (device, city, battery, browser, fonts, fingerprint). Missing data must not produce an empty chip. The **Attention** row should show time on page and scroll depth.
 
 ---
 

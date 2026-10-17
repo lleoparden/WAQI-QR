@@ -16,7 +16,10 @@ export const REVEAL_ORDER = [
   'fingerprint',
   'network',
   'arrival',
+  'attention',
 ];
+
+const SESSION_STARTED_AT = globalThis.performance?.now?.() ?? Date.now();
 
 const FONT_CANDIDATES = [
   'Arial', 'Arial Black', 'Calibri', 'Cambria', 'Candara', 'Comic Sans MS',
@@ -560,6 +563,14 @@ export async function resolveRevealRow(state, key) {
     case 'arrival':
       data = state.signals.arrival;
       break;
+    case 'attention':
+      data = {
+        seconds: Math.max(1, Math.round(((globalThis.performance?.now?.() ?? Date.now()) - SESSION_STARTED_AT) / 1000)),
+        scrollPercent: Math.min(100, Math.round(
+          ((window.scrollY + window.innerHeight) / Math.max(1, document.documentElement.scrollHeight)) * 100
+        )),
+      };
+      break;
     default:
       data = null;
   }
@@ -573,16 +584,6 @@ function present(value) {
   if (value === null || value === undefined || value === false) return false;
   const text = String(value).trim();
   return Boolean(text) && !/^(unknown|unknown os|unknown browser|n\/a|null|undefined|could not be determined)$/i.test(text);
-}
-
-function formatUtcOffset(minutes) {
-  if (!Number.isFinite(Number(minutes))) return '';
-  const total = Number(minutes);
-  const sign = total >= 0 ? '+' : '-';
-  const abs = Math.abs(total);
-  const hours = String(Math.floor(abs / 60)).padStart(2, '0');
-  const mins = String(abs % 60).padStart(2, '0');
-  return `UTC${sign}${hours}:${mins}`;
 }
 
 function formatStorage(storage) {
@@ -629,13 +630,9 @@ export function formatRow(key, data, copy, lang = 'en') {
       const browser = [data.uaParser?.browserName || data.browserName, data.uaParser?.browserVersion || data.browserVersion]
         .filter(present)
         .join(' ');
-      const engine = data.uaParser?.engineName || '';
       add(reveal.kind, type);
       add(reveal.os, os);
       add(reveal.browser, browser);
-      add(reveal.engine, engine);
-      add(reveal.architecture, data.architecture);
-      add(reveal.platformVersion, data.platformVersion);
       summary.push(type, os, browser);
     } else if (key === 'brand') {
       const brand = clean(data.brand);
@@ -656,19 +653,12 @@ export function formatRow(key, data, copy, lang = 'en') {
       add(reveal.screenSize, resolution);
       add(reveal.pixelRatio, data.dpr ? `${data.dpr}x` : '');
       add(reveal.touch, Number.isFinite(data.touchPoints) ? String(data.touchPoints) : '');
-      add(reveal.viewport, data.innerWidth && data.innerHeight ? `${data.innerWidth} × ${data.innerHeight}` : '');
-      add(reveal.colorDepth, data.colorDepth ? `${data.colorDepth}-bit` : '');
-      add(reveal.orientation, data.orientation);
-      add(reveal.displayMode, data.displayMode);
       summary.push(resolution);
     } else if (key === 'locale') {
       const languages = data.languages?.length ? data.languages.join(', ') : '';
       add(reveal.languages, languages);
       add(reveal.timezone, data.timezone);
       add(reveal.localTime, data.localTime);
-      add(reveal.utcOffset, formatUtcOffset(data.utcOffset));
-      add(reveal.calendar, data.calendar);
-      add(reveal.numbering, data.numberingSystem);
       summary.push(languages);
     } else if (key === 'hardware') {
       const connection = typeof data.connection === 'string'
@@ -678,35 +668,19 @@ export function formatRow(key, data, copy, lang = 'en') {
       const batteryValue = battery && Number.isFinite(Number(battery.level))
         ? `${Math.round(Number(battery.level) * 100)}% ${battery.charging ? reveal.batteryCharging : reveal.batteryNotCharging}`
         : '';
-      const cores = Number(data.cores) || 0;
       const memory = Number(data.memory) || 0;
-      add(reveal.cores, cores ? String(cores) : '');
       add(reveal.memory, memory ? `${memory} GB` : '');
       add(reveal.connection, connection.effectiveType);
       add(reveal.downlink, Number.isFinite(Number(connection.downlink)) ? `${connection.downlink} Mbps` : '');
-      add(reveal.rtt, Number.isFinite(Number(connection.rtt)) ? `${connection.rtt} ms` : '');
-      if (connection.effectiveType) {
-        add(reveal.saveData, connection.saveData ? copy.common.on : copy.common.off);
-      }
       add(reveal.storage, formatStorage(data.storage));
       add(reveal.battery, batteryValue);
       add(reveal.theme, data.dark ? reveal.dark : reveal.light);
-      add(reveal.contrast, data.contrast);
-      add(reveal.forcedColors, data.forcedColors ? copy.common.on : '');
-      add(reveal.pointer, data.pointer);
-      add(reveal.hover, data.hover);
-      add(reveal.motion, data.reducedMotion ? reveal.reduced : reveal.fullMotion);
-      summary.push(cores ? `${cores} ${reveal.cores}` : '', memory ? `${memory} GB` : '', connection.effectiveType, batteryValue);
+      summary.push(memory ? `${memory} GB` : '', formatStorage(data.storage), batteryValue, connection.effectiveType);
     } else if (key === 'gpu') {
       add(reveal.labels.gpu, data.renderer);
-      add(reveal.vendor, data.vendor);
-      add(reveal.webglVersion, data.version);
-      add(reveal.maxTexture, data.maxTexture ? String(data.maxTexture) : '');
       summary.push(data.renderer);
     } else if (key === 'fingerprint') {
       add(reveal.fingerprintId, data.id ? `SHA-256 · ${data.id}` : '');
-      add(reveal.canvasHash, data.canvasId);
-      add(reveal.audioHash, data.audioId);
       add(reveal.fonts, data.fonts ? `${data.fonts} ${reveal.fontsDetected}` : '');
       note(reveal.privateNoStore);
       summary.push(data.id ? `SHA-256 · ${data.id}` : '');
@@ -715,18 +689,24 @@ export function formatRow(key, data, copy, lang = 'en') {
       if (data.ok) {
         add(reveal.ip, data.ip);
         add(reveal.city, data.city);
-        add(reveal.region, data.region);
         add(reveal.country, data.country);
         add(reveal.isp, data.isp);
-        add(reveal.asn, data.asn);
-        add(reveal.source, data.source);
         note(reveal.approximate);
-        summary.push([data.city, data.region, data.country].filter(present).join(' · '), data.ip);
+        summary.push([data.city, data.country].filter(present).join(' · '), data.ip);
         out.scary = true;
       }
     } else if (key === 'arrival') {
       add(reveal.referrer, data.referrer);
       summary.push(data.host, data.referrer);
+      out.scary = true;
+    } else if (key === 'attention') {
+      if (Number.isFinite(Number(data.seconds))) {
+        add(reveal.timeOnPage, `${data.seconds} ${reveal.seconds}`);
+      }
+      if (Number.isFinite(Number(data.scrollPercent))) {
+        add(reveal.scrollDepth, `${data.scrollPercent}%`);
+      }
+      summary.push(`${data.seconds} ${reveal.seconds}`, `${data.scrollPercent}%`);
       out.scary = true;
     }
 

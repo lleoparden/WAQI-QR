@@ -65,14 +65,15 @@ const IPHONE_CLASSES = {
   '320x568@2': 'iPhone SE (1st gen) / 5s class',
   '375x667@2': 'iPhone SE (2nd/3rd gen) / 8 class',
   '375x812@3': 'iPhone X / 11 Pro / 12 mini / 13 mini class',
-  '390x844@3': 'iPhone 12 / 13 / 14 class',
+  '390x844@3': 'iPhone 12 / 13 / 14 / 16e class',
   '393x852@3': 'iPhone 14 Pro / 15 / 15 Pro / 16 class',
-  '402x874@3': 'iPhone 16 Pro class',
+  '402x874@3': 'iPhone 17 / 17 Pro / 16 Pro class',
   '414x896@2': 'iPhone XR / 11 class',
   '414x896@3': 'iPhone XS Max / 11 Pro Max class',
+  '420x912@3': 'iPhone Air class',
   '428x926@3': 'iPhone 12 / 13 Pro Max / 14 Plus class',
   '430x932@3': 'iPhone 14 Pro Max / 15 Plus / 15 Pro Max class',
-  '440x956@3': 'iPhone 16 Pro Max class',
+  '440x956@3': 'iPhone 17 Pro Max / 16 Pro Max class',
 };
 
 function clean(value) {

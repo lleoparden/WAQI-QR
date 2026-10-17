@@ -29,7 +29,7 @@ test('formatRow hides a row when the browser exposes nothing', () => {
 test('missing sub-values are omitted instead of rendered as placeholders', () => {
   const row = formatRow('hardware', {
     cores: 8,
-    memory: 0,
+    memory: 8,
     connection: null,
     storage: null,
     battery: null,
@@ -42,10 +42,17 @@ test('missing sub-values are omitted instead of rendered as placeholders', () =>
   }, content.en, 'en');
 
   assert.equal(row.hidden, false);
-  assert.ok(row.lines.some((line) => line.label === 'CPU threads'));
+  assert.ok(row.lines.some((line) => line.label === 'Device memory'));
   assert.equal(row.lines.some((line) => line.label === 'Battery'), false);
-  assert.equal(row.lines.some((line) => line.label === 'Device memory'), false);
   assert.equal(row.lines.some((line) => line.value === 'not exposed by your browser'), false);
+});
+
+test('attention row shows time on page and scroll depth', () => {
+  const row = formatRow('attention', { seconds: 12, scrollPercent: 34 }, content.en, 'en');
+  assert.equal(row.hidden, false);
+  assert.ok(row.lines.some((line) => line.label === 'Time on page' && line.value === '12 seconds'));
+  assert.ok(row.lines.some((line) => line.label === 'Page scrolled' && line.value === '34%'));
+  assert.equal(row.scary, true);
 });
 
 test('scam cards fill the visitor data and use reserved domains', () => {

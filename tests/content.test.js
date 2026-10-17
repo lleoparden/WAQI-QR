@@ -25,7 +25,7 @@ test('languages set direction and document language', () => {
 });
 
 test('the reveal has the required row labels and why-lines', () => {
-  const keys = ['device', 'brand', 'screen', 'locale', 'hardware', 'gpu', 'fingerprint', 'network', 'arrival'];
+  const keys = ['device', 'brand', 'screen', 'locale', 'hardware', 'gpu', 'fingerprint', 'network', 'arrival', 'attention'];
   for (const language of LANGUAGE_ORDER) {
     const reveal = content[language].reveal;
     for (const key of keys) {

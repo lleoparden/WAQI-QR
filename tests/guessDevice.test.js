@@ -55,6 +55,21 @@ test('iPhone is a certain brand but only a model range', () => {
   assert.ok(result.confidence >= 85);
 });
 
+test('the 402x874 iPhone viewport includes the 17 series, not just the 16 Pro', () => {
+  const result = guessDevice({
+    userAgent: 'Mozilla/5.0 (iPhone; CPU iPhone OS 26_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.0 Mobile/15E148 Safari/604.1',
+    screen: { width: 402, height: 874 },
+    devicePixelRatio: 3,
+    touchPoints: 5,
+    webglRenderer: 'Apple GPU',
+  });
+
+  assert.equal(result.brand, 'Apple');
+  assert.match(result.model, /iPhone 17/);
+  assert.match(result.model, /class/);
+  assert.doesNotMatch(result.model, /^iPhone 16 Pro$/);
+});
+
 test('desktop Chrome is identified as a desktop, not a phone', () => {
   const result = guessDevice({
     userAgent: DESKTOP_CHROME_UA,
