@@ -10,7 +10,7 @@ Use this after the Supabase project and GitHub Pages site are configured. The au
 npm test
 ```
 
-Expected: **42 tests pass**, with no skipped tests.
+Expected: **43 tests pass**, with no skipped tests.
 
 The suite covers:
 

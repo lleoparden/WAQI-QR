@@ -8,8 +8,6 @@
 
 begin;
 
-create extension if not exists pgcrypto;
-
 -- ---------------------------------------------------------------------------
 -- Tables
 -- ---------------------------------------------------------------------------
@@ -660,7 +658,7 @@ begin
   end if;
 
   for v_attempt in 1..10 loop
-    v_slug := lower(substr(encode(gen_random_bytes(8), 'hex'), 1, 8));
+    v_slug := lower(substr(replace(gen_random_uuid()::text, '-', ''), 1, 8));
 
     begin
       insert into public.qr_codes (slug, label, placement, target_url, variant)

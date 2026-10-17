@@ -123,6 +123,17 @@ test('public RPCs are SECURITY DEFINER and every admin RPC requires auth.uid()',
   }
 });
 
+test('the create_qr slug generator does not depend on pgcrypto search_path', async () => {
+  const init = await read('supabase/migrations/0001_init.sql');
+  const fix = await read('supabase/migrations/0002_fix_create_qr_slug.sql');
+  assert.doesNotMatch(init, /encode\(gen_random_bytes/);
+  assert.doesNotMatch(init, /create extension if not exists pgcrypto/i);
+  assert.doesNotMatch(fix, /encode\(gen_random_bytes/);
+  assert.match(fix, /gen_random_uuid\(\)::text/);
+  assert.match(fix, /create or replace function public\.create_qr/);
+  assert.match(fix, /notify pgrst, 'reload schema'/);
+});
+
 test('admin pages are marked noindex', async () => {
   for (const file of ['web/admin/index.html', 'web/admin/login.html']) {
     const html = await read(file);

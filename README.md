@@ -17,6 +17,7 @@ Everything runs on free tiers:
 
 ```
 supabase/migrations/0001_init.sql   tables, RLS, RPCs, view, grants
+supabase/migrations/0002_fix_create_qr_slug.sql   auto-slug fix for Supabase
 web/
   config.js                         SUPABASE_URL, ANON_KEY, LANDING_BASE_URL
   js/api.js                         the only file that talks to Supabase
@@ -59,13 +60,16 @@ The flow is: QR → `/?src=<slug>` → `web/index.html` redirects to `/landing/?
 3. Choose an organisation, a project name such as `waqi-qr`, a strong database password, and a region close to Egypt (for example `eu-central-1`).
 4. Wait for the project to finish provisioning.
 
-### Run the migration
+### Run the migrations
 
 1. In the Supabase dashboard, open **SQL Editor**.
 2. Click **New query**.
 3. Open [`supabase/migrations/0001_init.sql`](supabase/migrations/0001_init.sql) in this repository and copy the entire file.
 4. Paste it into the SQL editor and click **Run**.
 5. You should see **Success. No rows returned**.
+6. Repeat with [`0002_fix_create_qr_slug.sql`](supabase/migrations/0002_fix_create_qr_slug.sql). This replaces the auto-slug generator with `gen_random_uuid()` so it does not depend on the `pgcrypto` search path.
+
+If you already ran an older `0001_init.sql`, you only need to run `0002_fix_create_qr_slug.sql`. It is idempotent, does not delete data, and runs `notify pgrst, 'reload schema';`.
 
 The file is idempotent: running it again is safe. It creates the tables, indexes, RLS policies, public RPCs, admin RPCs, the stats view, and all grants.
 
@@ -235,7 +239,7 @@ The page states this in the transparency box and in the always-visible privacy b
 
 The backend is intentionally independent of this UI:
 
-- Tables, RLS policies, and RPCs live entirely in [`supabase/migrations/0001_init.sql`](supabase/migrations/0001_init.sql).
+- Tables, RLS policies, and RPCs live entirely in [`supabase/migrations/`](supabase/migrations/). Run the `.sql` files in numeric order.
 - [`API.md`](API.md) documents every parameter, return shape, and auth rule.
 - Any new frontend only needs the Supabase URL, the anon key, and the same RPC calls.
 - Keep the public page and admin page separate. They share only `web/js/api.js` and `web/config.js`.
@@ -277,6 +281,9 @@ The admin console redirects to the login page when there is no session and marks
 
 **The landing page works but scans never appear.**
 Check `web/config.js`, the browser console, and the Network tab. If Supabase is not configured, `recordScan` returns `false` silently by design. Check the RPC response in Supabase **Logs → API**.
+
+**Creating a QR fails with `function gen_random_bytes(integer) does not exist`.**
+Run [`0002_fix_create_qr_slug.sql`](supabase/migrations/0002_fix_create_qr_slug.sql) in the Supabase SQL editor. Supabase keeps `pgcrypto` in the `extensions` schema, while the older function used `search_path = public`; the fix uses built-in `gen_random_uuid()` instead. Then hard-refresh the admin page.
 
 **The dashboard says “Supabase is not configured.”**
 You edited `web/config.js` but did not deploy, or the file still contains `YOUR_`. Commit and let the Pages workflow finish.
