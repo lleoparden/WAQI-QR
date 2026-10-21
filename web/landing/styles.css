@@ -997,8 +997,12 @@ h3 {
 }
 
 .sim-from {
-  color: var(--ink);
+  color: var(--orange);
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
   font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
 }
 
 .sim-title {

@@ -10,7 +10,7 @@ Use this after the Supabase project and GitHub Pages site are configured. The au
 npm test
 ```
 
-Expected: **51 tests pass**, with no skipped tests.
+Expected: **59 tests pass**, with no skipped tests.
 
 The suite covers:
 
@@ -193,7 +193,7 @@ The `record_event` body has exactly:
 }
 ```
 
-5. Inspect requests to `ipwho.is` / `cloudflare.com`. **Expected:** these are direct browser requests to third parties, never to your Supabase project. They are not stored.
+5. Inspect requests to `ipwho.is`, `ipapi.co`, and `cloudflare.com`. **Expected:** these are direct browser requests to third parties, never to your Supabase project. They are not stored.
 6. Inspect the share card request. There must be none: canvas generation is local. The page may open the native share sheet or download a file; no upload.
 7. Inspect localStorage. The only WAQI keys should be:
    - `waqi_visitor_id`
@@ -206,12 +206,14 @@ No revealed device, network, fingerprint, or coordinates may appear in localStor
 
 ## 7. Page renders fully if the IP API is blocked or offline
 
-1. Open DevTools → Network → **Block request URL** for `https://ipwho.is/` and `https://www.cloudflare.com/cdn-cgi/trace`.
+1. Open DevTools → Network → **Block request URL** for `https://ipwho.is/`, `https://ipapi.co/json/`, and `https://www.cloudflare.com/cdn-cgi/trace`.
 2. Reload the landing page.
 3. **Expected:** all available reveal rows still appear. The Network row is omitted; the page continues to the scammer simulation, quiz, good-news, WAQI, share, and transparency sections. No “not exposed” placeholder title appears.
 4. The scam cards use the generic carrier/city fallback and still carry **SIMULATION** badges.
 5. Unblock and reload; the Network row populates again.
-6. Also test with the device offline: the page shell, reveal rows, quiz, and share card must still work. The scan/event calls fail silently.
+6. On a known Egyptian ISP, confirm the Network row starts with **Carrier** and shows the researched name and type — for example **Telecom Egypt (WE) · home / business ISP**, **Vodafone Egypt · mobile carrier**, **Orange Egypt · mobile carrier**, **Etisalat Egypt (e&) · mobile carrier**, or **NOOR · home / business ISP**. The profile chip uses the short carrier name, and the scam message names the matching wallet.
+7. On an unknown ISP or VPN, no carrier line is invented and the scam card falls back to the generic wallet/city text.
+8. Also test with the device offline: the page shell, reveal rows, quiz, and share card must still work. The scan/event calls fail silently.
 
 **No unhandled rejection or blank screen is acceptable.**
 

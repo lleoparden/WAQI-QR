@@ -378,6 +378,11 @@ function renderProfileSummary() {
     addChip(model);
   }
   if (signals.network?.city) addChip(signals.network.city);
+  if (signals.network?.carrier?.shortName) {
+    addChip(state.lang === 'ar'
+      ? (signals.network.carrier.shortNameAr || signals.network.carrier.shortName)
+      : signals.network.carrier.shortName);
+  } else if (signals.network?.isp) addChip(signals.network.isp);
   if (Number.isFinite(signals.hardware?.battery?.level)) {
     addChip(`${Math.round(signals.hardware.battery.level * 100)}% ${state.copy.reveal.battery}`);
   }
@@ -390,8 +395,6 @@ function renderProfileSummary() {
     addChip(`${signals.fingerprint.fonts} ${state.copy.reveal.fontsChip}`);
   }
   if (signals.fingerprint?.id) addChip(`#${signals.fingerprint.id.slice(0, 6)}`);
-  if (signals.network?.isp) addChip(signals.network.isp);
-  if (signals.network?.asn) addChip(signals.network.asn);
 
   const container = $('#profile-chips');
   container.replaceChildren(...chips.slice(0, 7).map((chip) => el('span', 'profile-chip', chip)));

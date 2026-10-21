@@ -55,11 +55,53 @@ test('attention row shows time on page and scroll depth', () => {
   assert.equal(row.scary, true);
 });
 
+test('network row puts the identified carrier first', () => {
+  const row = formatRow('network', {
+    ok: true,
+    ip: '197.52.182.152',
+    city: 'Cairo',
+    country: 'Egypt',
+    isp: 'TE Data',
+    carrier: { name: 'Telecom Egypt (WE)', nameAr: 'المصرية للاتصالات (WE)', type: 'fixed' },
+  }, content.en, 'en');
+
+  assert.equal(row.hidden, false);
+  assert.equal(row.lines[0].label, 'Carrier');
+  assert.match(row.lines[0].value, /Telecom Egypt \(WE\)/);
+  assert.match(row.lines[0].value, /home \/ business ISP/);
+  assert.match(row.summary, /Telecom Egypt/);
+
+  const arabic = formatRow('network', {
+    ok: true,
+    ip: '197.52.182.152',
+    city: 'القاهرة',
+    country: 'مصر',
+    isp: 'TE Data',
+    carrier: { name: 'Telecom Egypt (WE)', nameAr: 'المصرية للاتصالات (WE)', type: 'fixed' },
+  }, content.ar, 'ar');
+  assert.match(arabic.lines[0].value, /المصرية للاتصالات/);
+  assert.match(arabic.lines[0].value, /إنترنت منزلي/);
+});
+
 test('scam cards fill the visitor data and use reserved domains', () => {
   const state = {
     signals: {
       brand: { brand: 'Samsung', model: 'Galaxy S23 Ultra' },
-      network: { city: 'Cairo', country: 'Egypt', isp: 'Vodafone Egypt' },
+      network: {
+        city: 'Cairo',
+        country: 'Egypt',
+        isp: 'Vodafone Data',
+        carrier: {
+          name: 'Vodafone Egypt',
+          nameAr: 'فودافون مصر',
+          shortName: 'Vodafone',
+          shortNameAr: 'فودافون',
+          wallet: 'Vodafone Cash',
+          walletAr: 'فودافون كاش',
+          walletSlug: 'vodafone-cash',
+          type: 'mobile',
+        },
+      },
       hardware: { battery: { level: 0.34 } },
       parsed: { browserName: 'Chrome', browserVersion: '120' },
     },
@@ -69,6 +111,7 @@ test('scam cards fill the visitor data and use reserved domains', () => {
   assert.match(scams.knows, /Samsung/);
   assert.match(scams.knows, /Cairo/);
   assert.match(scams.knows, /34%/);
+  assert.match(scams.knows, /Vodafone Egypt/);
   assert.match(scams.realScammer, /Cairo/);
   assert.equal(scams.cards.length, 3);
   assert.equal(scams.cards[0].from, 'Vodafone Cash');
@@ -77,6 +120,10 @@ test('scam cards fill the visitor data and use reserved domains', () => {
     assert.doesNotMatch(card.body, /\{[a-zA-Z]+\}/);
     assert.match(card.url, /\.example/);
   }
+
+  const arabic = buildScams(state, content.ar, 'ar');
+  assert.match(arabic.knows, /فودافون مصر/);
+  assert.equal(arabic.cards[0].from, 'فودافون كاش');
 });
 
 test('desktop visitors are not described as holding a Desktop', () => {

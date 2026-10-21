@@ -1,10 +1,11 @@
 // Local-only reveal engine. This file must never import api.js, never call our
-// backend, and never persist revealed data. It only talks to two public IP
+// backend, and never persist revealed data. It only talks to three public IP
 // lookup services, which is disclosed on the page.
 //
 // Everything else is read from the browser and rendered on screen.
 
 import { guessDevice, parseUserAgent } from './guessDevice.js';
+import { identifyCarrier } from './carriers.js';
 
 export const REVEAL_ORDER = [
   'device',
@@ -377,15 +378,49 @@ async function lookupNetwork() {
     const data = await response.json();
     if (data?.success === false) throw new Error('ipwho');
     if (data?.ip) {
+      const asn = data.connection?.asn ? `AS${data.connection.asn}` : '';
+      const ispName = clean(data.connection?.isp);
+      const orgName = clean(data.connection?.org);
+      const carrier = identifyCarrier({ isp: ispName, org: orgName, asn });
       return {
         ok: true,
         ip: clean(data.ip),
         city: clean(data.city),
         region: clean(data.region),
         country: clean(data.country),
-        isp: clean(data.connection?.isp || data.connection?.org),
-        asn: data.connection?.asn ? `AS${data.connection.asn}` : '',
+        isp: orgName || ispName,
+        org: orgName,
+        asn,
+        carrier,
         source: 'ipwho.is',
+      };
+    }
+  } catch {
+    // Fall through to the second JSON lookup below.
+  }
+
+  try {
+    const response = await fetchWithTimeout('https://ipapi.co/json/', 5000, {
+      headers: { Accept: 'application/json' },
+    });
+    if (!response.ok) throw new Error('ipapi');
+    const data = await response.json();
+    if (data?.error) throw new Error('ipapi');
+    if (data?.ip) {
+      const asn = clean(data.asn);
+      const org = clean(data.org);
+      const carrier = identifyCarrier({ isp: org, org, asn });
+      return {
+        ok: true,
+        ip: clean(data.ip),
+        city: clean(data.city),
+        region: clean(data.region),
+        country: clean(data.country_name || data.country),
+        isp: org,
+        org,
+        asn,
+        carrier,
+        source: 'ipapi.co',
       };
     }
   } catch {
@@ -404,7 +439,9 @@ async function lookupNetwork() {
         region: '',
         country: clean(fields.loc),
         isp: '',
+        org: '',
         asn: '',
+        carrier: null,
         source: 'Cloudflare trace',
       };
     }
@@ -419,7 +456,9 @@ async function lookupNetwork() {
     region: '',
     country: '',
     isp: '',
+    org: '',
     asn: '',
+    carrier: null,
     source: '',
   };
 }
@@ -687,12 +726,19 @@ export function formatRow(key, data, copy, lang = 'en') {
       out.scary = true;
     } else if (key === 'network') {
       if (data.ok) {
+        const carrier = data.carrier;
+        if (carrier?.name) {
+          const carrierName = lang === 'ar' ? (carrier.nameAr || carrier.name) : carrier.name;
+          const type = reveal.carrierTypes?.[carrier.type] || '';
+          add(reveal.carrier, [carrierName, type].filter(present).join(' · '));
+        } else {
+          add(reveal.isp, data.isp);
+        }
         add(reveal.ip, data.ip);
         add(reveal.city, data.city);
         add(reveal.country, data.country);
-        add(reveal.isp, data.isp);
         note(reveal.approximate);
-        summary.push([data.city, data.country].filter(present).join(' · '), data.ip);
+        summary.push(carrier?.name, [data.city, data.country].filter(present).join(' · '), data.ip);
         out.scary = true;
       }
     } else if (key === 'arrival') {
@@ -740,13 +786,22 @@ function slugify(value, fallback) {
   return slug || fallback;
 }
 
-function detectCarrier(isp, copy) {
-  const value = String(isp || '').toLowerCase();
-  if (value.includes('vodafone')) return { name: 'Vodafone Cash', slug: 'vodafone-cash' };
-  if (value.includes('orange')) return { name: 'Orange Cash', slug: 'orange-cash' };
-  if (value.includes('etisalat') || value.includes('e&')) return { name: 'Etisalat Cash', slug: 'etisalat-cash' };
-  if (/\bwe\b/.test(value) || value.includes('telecom egypt')) return { name: 'WE Pay', slug: 'we-pay' };
-  return { name: copy.scammer.genericCarrier, slug: 'wallet' };
+function resolveWalletCarrier(network, copy, lang) {
+  const detected = network?.carrier;
+  if (detected?.wallet) {
+    return {
+      name: lang === 'ar' ? (detected.walletAr || detected.wallet) : detected.wallet,
+      slug: detected.walletSlug,
+      known: true,
+      networkName: lang === 'ar' ? (detected.nameAr || detected.name) : detected.name,
+    };
+  }
+  return {
+    name: copy.scammer.genericCarrier,
+    slug: 'wallet',
+    known: false,
+    networkName: '',
+  };
 }
 
 function fill(template, values) {
@@ -761,7 +816,9 @@ export function buildScams(state, copy, lang = 'en') {
   const hasBrand = brandName && brandName !== 'Unknown' && !isDesktop;
   const needsAn = /^(apple|oppo|infinix|honor)/i.test(brandName) || /^[aeiou]/i.test(brandName);
   const brand = hasBrand
-    ? (lang === 'en' ? `${needsAn ? 'an' : 'a'} ${brandName}` : brandName)
+    ? (lang === 'en'
+      ? (brandName === 'Apple' ? 'an Apple device' : `${needsAn ? 'an' : 'a'} ${brandName}`)
+      : brandName)
     : copy.scammer.genericBrand;
   const device = isDesktop && model
     ? model
@@ -772,7 +829,7 @@ export function buildScams(state, copy, lang = 'en') {
   const battery = Number.isFinite(signals.hardware?.battery?.level)
     ? `${Math.round(signals.hardware.battery.level * 100)}%`
     : copy.scammer.genericBattery;
-  const carrier = detectCarrier(signals.network?.isp, copy);
+  const carrier = resolveWalletCarrier(signals.network, copy, lang);
   const time = formatLocalTime(new Date(), lang) || copy.common.unknown;
   const browserName = clean(signals.parsed?.browserName);
   const browserVersion = clean(signals.parsed?.browserVersion);
@@ -791,10 +848,14 @@ export function buildScams(state, copy, lang = 'en') {
     browser,
     carrier: carrier.name,
     carrierSlug: carrier.slug,
+    carrierNetwork: carrier.networkName,
   };
 
+  const knows = fill(copy.scammer.knows, values);
+  const knowsCarrier = carrier.known ? fill(copy.scammer.knowsCarrier, values) : '';
+
   return {
-    knows: fill(copy.scammer.knows, values),
+    knows: [knows, knowsCarrier].filter(Boolean).join(' '),
     realScammer: fill(copy.scammer.realScammer, values),
     cards: copy.scammer.cards.map((card) => ({
       id: card.id,

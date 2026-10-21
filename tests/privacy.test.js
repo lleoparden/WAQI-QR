@@ -26,12 +26,12 @@ test('reveal.js and guessDevice.js never import the API or persist revealed data
   assert.equal(guess.includes(supabaseUrl), false);
 });
 
-test('reveal.js only fetches the two disclosed public IP services', async () => {
+test('reveal.js only fetches the three disclosed public IP services', async () => {
   const reveal = await read('web/landing/reveal.js');
   const urls = [...reveal.matchAll(/https:\/\/[^\s'",)]+/g)].map((match) => match[0]);
-  assert.ok(urls.length >= 2);
+  assert.ok(urls.length >= 3);
   for (const url of urls) {
-    assert.match(url, /^(https:\/\/ipwho\.is\/|https:\/\/www\.cloudflare\.com\/cdn-cgi\/trace)/);
+    assert.match(url, /^(https:\/\/ipwho\.is\/|https:\/\/ipapi\.co\/json\/|https:\/\/www\.cloudflare\.com\/cdn-cgi\/trace)/);
   }
 });
 
