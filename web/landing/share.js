@@ -65,17 +65,17 @@ function drawQrFallback(ctx, x, y, size) {
   ctx.save();
   ctx.textAlign = 'center';
   ctx.direction = 'ltr';
-  ctx.fillStyle = '#05070a';
+  ctx.fillStyle = '#1e2a38';
   ctx.font = `800 ${Math.round(size * 0.17)}px ui-monospace, Consolas, monospace`;
   ctx.fillText('WAQI', x + size / 2, y + size * 0.5);
-  ctx.fillStyle = 'rgba(5,7,10,0.55)';
+  ctx.fillStyle = 'rgba(30,42,56,0.55)';
   ctx.font = `700 ${Math.round(size * 0.065)}px ui-monospace, Consolas, monospace`;
   ctx.fillText('SCAN THE LINK', x + size / 2, y + size * 0.64);
   ctx.restore();
 }
 
 async function drawQrCode(ctx, x, y, size, url) {
-  ctx.fillStyle = '#f4f1e8';
+  ctx.fillStyle = '#f8f3e8';
   roundedRect(ctx, x - 10, y - 10, size + 20, size + 20, 16);
   ctx.fill();
   try {
@@ -85,7 +85,7 @@ async function drawQrCode(ctx, x, y, size, url) {
         errorCorrectionLevel: 'H',
         width: size,
         margin: 4,
-        color: { dark: '#05070a', light: '#f4f1e8' },
+        color: { dark: '#1e2a38', light: '#f8f3e8' },
       });
       ctx.drawImage(qr, x, y, size, size);
       return;
@@ -113,19 +113,19 @@ export async function drawShareCard(canvas, {
     ? '"Segoe UI", Tahoma, "Noto Naskh Arabic", Arial, sans-serif'
     : '"Segoe UI", Helvetica, Arial, sans-serif';
   const mono = 'ui-monospace, "SFMono-Regular", Consolas, monospace';
-  const ink = '#f4f1e8';
-  const muted = 'rgba(244,241,232,0.62)';
-  const orange = '#ff5a1f';
-  const panel = '#0b1017';
-  const edge = 'rgba(244,241,232,0.14)';
+  const ink = '#1e2a38';
+  const muted = 'rgba(30,42,56,0.64)';
+  const orange = '#b7862f';
+  const panel = '#e7ddcd';
+  const edge = 'rgba(30,42,56,0.18)';
 
   ctx.clearRect(0, 0, WIDTH, HEIGHT);
-  ctx.fillStyle = '#05070a';
+  ctx.fillStyle = '#f2eadc';
   ctx.fillRect(0, 0, WIDTH, HEIGHT);
 
   const gradient = ctx.createRadialGradient(WIDTH * 0.78, HEIGHT * 0.16, 20, WIDTH * 0.78, HEIGHT * 0.16, 620);
-  gradient.addColorStop(0, 'rgba(255,90,31,0.2)');
-  gradient.addColorStop(1, 'rgba(255,90,31,0)');
+  gradient.addColorStop(0, 'rgba(183,134,47,0.2)');
+  gradient.addColorStop(1, 'rgba(183,134,47,0)');
   ctx.fillStyle = gradient;
   ctx.fillRect(0, 0, WIDTH, HEIGHT);
 

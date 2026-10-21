@@ -1,36 +1,36 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="720" height="1000" viewBox="0 0 720 1000" role="img" aria-labelledby="title desc">
   <title id="title">Placeholder InstaPay-style transaction screenshot</title>
   <desc id="desc">A synthetic placeholder image for the WAQI Spot the Scam quiz. Replace this file with the campaign's synthetic InstaPay receipt image.</desc>
-  <rect width="720" height="1000" fill="#071017"/>
-  <rect x="48" y="34" width="624" height="932" rx="42" fill="#101a24" stroke="#ff5a1f" stroke-opacity=".42" stroke-width="2"/>
-  <rect x="76" y="74" width="568" height="852" rx="24" fill="#f4f1e8"/>
+  <rect width="720" height="1000" fill="#1f2d3b"/>
+  <rect x="48" y="34" width="624" height="932" rx="42" fill="#2a3b4b" stroke="#b7862f" stroke-opacity=".55" stroke-width="2"/>
+  <rect x="76" y="74" width="568" height="852" rx="24" fill="#f2eadc"/>
 
-  <rect x="96" y="94" width="528" height="54" rx="10" fill="#ff5a1f"/>
-  <text x="360" y="129" text-anchor="middle" font-family="ui-monospace, Consolas, monospace" font-size="21" font-weight="700" fill="#160803" letter-spacing="2">PLACEHOLDER · SYNTHETIC SAMPLE</text>
+  <rect x="96" y="94" width="528" height="54" rx="10" fill="#b7862f"/>
+  <text x="360" y="129" text-anchor="middle" font-family="ui-monospace, Consolas, monospace" font-size="21" font-weight="700" fill="#1e2a38" letter-spacing="2">PLACEHOLDER · SYNTHETIC SAMPLE</text>
 
-  <text x="118" y="206" font-family="ui-monospace, Consolas, monospace" font-size="22" fill="#6b7682" letter-spacing="1">INSTAPAY-STYLE TRANSFER</text>
-  <text x="118" y="252" font-family="Arial, Helvetica, sans-serif" font-size="40" font-weight="700" fill="#11151a">Transfer completed</text>
+  <text x="118" y="206" font-family="ui-monospace, Consolas, monospace" font-size="22" fill="#5f6c78" letter-spacing="1">INSTAPAY-STYLE TRANSFER</text>
+  <text x="118" y="252" font-family="Arial, Helvetica, sans-serif" font-size="40" font-weight="700" fill="#1e2a38">Transfer completed</text>
 
-  <circle cx="132" cy="326" r="26" fill="#57d9a3"/>
-  <path d="M119 326l9 9 18-20" fill="none" stroke="#071017" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
-  <text x="174" y="335" font-family="Arial, Helvetica, sans-serif" font-size="24" fill="#39434d">SAMPLE receipt</text>
+  <circle cx="132" cy="326" r="26" fill="#6f7d5a"/>
+  <path d="M119 326l9 9 18-20" fill="none" stroke="#f2eadc" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="174" y="335" font-family="Arial, Helvetica, sans-serif" font-size="24" fill="#3f5061">SAMPLE receipt</text>
 
-  <line x1="118" y1="380" x2="558" y2="380" stroke="#d8d2c3" stroke-width="2"/>
-  <text x="118" y="430" font-family="ui-monospace, Consolas, monospace" font-size="18" fill="#6b7682">AMOUNT</text>
-  <text x="558" y="430" text-anchor="end" font-family="ui-monospace, Consolas, monospace" font-size="30" font-weight="700" fill="#11151a">EGP 4,500.00</text>
-  <text x="118" y="492" font-family="ui-monospace, Consolas, monospace" font-size="18" fill="#6b7682">TO</text>
-  <text x="558" y="492" text-anchor="end" font-family="Arial, Helvetica, sans-serif" font-size="24" fill="#11151a">M. Hassan</text>
-  <text x="118" y="554" font-family="ui-monospace, Consolas, monospace" font-size="18" fill="#6b7682">REFERENCE</text>
-  <text x="558" y="554" text-anchor="end" font-family="ui-monospace, Consolas, monospace" font-size="22" fill="#11151a">IP-8821-4402</text>
-  <line x1="118" y1="594" x2="558" y2="594" stroke="#d8d2c3" stroke-width="2"/>
+  <line x1="118" y1="380" x2="558" y2="380" stroke="#c9bda8" stroke-width="2"/>
+  <text x="118" y="430" font-family="ui-monospace, Consolas, monospace" font-size="18" fill="#5f6c78">AMOUNT</text>
+  <text x="558" y="430" text-anchor="end" font-family="ui-monospace, Consolas, monospace" font-size="30" font-weight="700" fill="#1e2a38">EGP 4,500.00</text>
+  <text x="118" y="492" font-family="ui-monospace, Consolas, monospace" font-size="18" fill="#5f6c78">TO</text>
+  <text x="558" y="492" text-anchor="end" font-family="Arial, Helvetica, sans-serif" font-size="24" fill="#1e2a38">M. Hassan</text>
+  <text x="118" y="554" font-family="ui-monospace, Consolas, monospace" font-size="18" fill="#5f6c78">REFERENCE</text>
+  <text x="558" y="554" text-anchor="end" font-family="ui-monospace, Consolas, monospace" font-size="22" fill="#1e2a38">IP-8821-4402</text>
+  <line x1="118" y1="594" x2="558" y2="594" stroke="#c9bda8" stroke-width="2"/>
 
-  <rect x="118" y="632" width="440" height="94" rx="12" fill="#fff4e8" stroke="#ff5a1f" stroke-width="2"/>
-  <text x="138" y="669" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="700" fill="#8a2b0b">CONFIRM AT</text>
-  <text x="138" y="700" font-family="ui-monospace, Consolas, monospace" font-size="20" fill="#8a2b0b">instapay-check.example</text>
+  <rect x="118" y="632" width="440" height="94" rx="12" fill="#f6efe2" stroke="#b7862f" stroke-width="2"/>
+  <text x="138" y="669" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="700" fill="#74551b">CONFIRM AT</text>
+  <text x="138" y="700" font-family="ui-monospace, Consolas, monospace" font-size="20" fill="#74551b">instapay-check.example</text>
 
-  <rect x="118" y="778" width="440" height="86" rx="10" fill="#11151a"/>
-  <text x="360" y="812" text-anchor="middle" font-family="ui-monospace, Consolas, monospace" font-size="18" font-weight="700" fill="#f4f1e8">IMAGE PLACEHOLDER</text>
-  <text x="360" y="840" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="16" fill="#9aa5b1">Replace this file with the final synthetic screenshot</text>
+  <rect x="118" y="778" width="440" height="86" rx="10" fill="#1e2a38"/>
+  <text x="360" y="812" text-anchor="middle" font-family="ui-monospace, Consolas, monospace" font-size="18" font-weight="700" fill="#f4ecdf">IMAGE PLACEHOLDER</text>
+  <text x="360" y="840" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="16" fill="#b9c1c7">Replace this file with the final synthetic screenshot</text>
 
-  <text x="360" y="898" text-anchor="middle" font-family="ui-monospace, Consolas, monospace" font-size="14" fill="#6b7682">WAQI · SPOT THE SCAM · NON-REAL SAMPLE</text>
+  <text x="360" y="898" text-anchor="middle" font-family="ui-monospace, Consolas, monospace" font-size="14" fill="#5f6c78">WAQI · SPOT THE SCAM · NON-REAL SAMPLE</text>
 </svg>

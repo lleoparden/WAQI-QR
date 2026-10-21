@@ -1,22 +1,43 @@
 :root {
-  color-scheme: dark;
-  --bg: #05070a;
-  --bg-soft: #080c12;
-  --panel: #0a1018;
-  --panel-2: #0d141e;
-  --ink: #f4f1e8;
-  --muted: #9aa5b1;
-  --dim: #6b7682;
-  --orange: #ff5a1f;
-  --orange-soft: rgba(255, 90, 31, 0.13);
-  --line: rgba(244, 241, 232, 0.12);
-  --line-strong: rgba(244, 241, 232, 0.22);
-  --green: #57d9a3;
-  --red: #ff6b6b;
+  color-scheme: light;
+  --bg: #f2eadc;
+  --bg-soft: #e8dfd0;
+  --panel: #1f2d3b;
+  --panel-2: #2a3b4b;
+  --ink: #f4ecdf;
+  --page-ink: #1e2a38;
+  --muted: #5f6c78;
+  --muted-on-dark: #b9c1c7;
+  --dim: #8a8a7f;
+  --dim-on-dark: #8e99a2;
+  --orange: #b7862f;
+  --orange-soft: rgba(183, 134, 47, 0.14);
+  --line: rgba(30, 42, 56, 0.15);
+  --line-strong: rgba(30, 42, 56, 0.25);
+  --line-on-dark: rgba(244, 236, 223, 0.16);
+  --line-on-dark-strong: rgba(244, 236, 223, 0.28);
+  --green: #6f7d5a;
+  --red: #a9472f;
   --font-body: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Tahoma, "Noto Sans Arabic", Arial, sans-serif;
   --font-mono: ui-monospace, "SFMono-Regular", "Cascadia Mono", Consolas, "Liberation Mono", monospace;
   --radius: 18px;
-  --shadow: 0 28px 80px rgba(0, 0, 0, 0.45);
+  --shadow: 0 26px 70px rgba(31, 45, 59, 0.18);
+}
+
+.terminal,
+.scanner-frame,
+.sim-card,
+.quiz-card,
+.tip,
+.transparency-card,
+.waqi-card,
+.share-preview,
+.profile-summary {
+  --muted: var(--muted-on-dark);
+  --dim: var(--dim-on-dark);
+  --line: var(--line-on-dark);
+  --line-strong: var(--line-on-dark-strong);
+  color: var(--ink);
 }
 
 *,
@@ -38,7 +59,7 @@ body {
   margin: 0;
   min-width: 320px;
   background: var(--bg);
-  color: var(--ink);
+  color: var(--page-ink);
   font-family: var(--font-body);
   font-size: 16px;
   line-height: 1.65;
@@ -54,17 +75,17 @@ body::before {
   inset: 0;
   z-index: -1;
   background:
-    radial-gradient(900px 500px at 78% -10%, rgba(255, 90, 31, 0.11), transparent 60%),
-    radial-gradient(700px 450px at 0% 35%, rgba(50, 120, 255, 0.06), transparent 70%),
-    linear-gradient(rgba(255, 255, 255, 0.018) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.018) 1px, transparent 1px);
+    radial-gradient(900px 500px at 78% -10%, rgba(183, 134, 47, 0.16), transparent 60%),
+    radial-gradient(700px 450px at 0% 35%, rgba(70, 90, 107, 0.08), transparent 70%),
+    linear-gradient(rgba(30, 42, 56, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(30, 42, 56, 0.035) 1px, transparent 1px);
   background-size: auto, auto, 64px 64px, 64px 64px;
   pointer-events: none;
 }
 
 ::selection {
   background: var(--orange);
-  color: #05070a;
+  color: var(--page-ink);
 }
 
 a {
@@ -93,8 +114,8 @@ button {
   inset-inline-start: 0.5rem;
   z-index: 100;
   transform: translateY(-180%);
-  background: var(--ink);
-  color: var(--bg);
+  background: var(--orange);
+  color: var(--page-ink);
   padding: 0.5rem 0.8rem;
   border-radius: 8px;
   font-weight: 700;
@@ -114,7 +135,7 @@ button {
   gap: 1rem;
   width: 100%;
   padding: 0.8rem clamp(1rem, 4vw, 2.5rem);
-  background: rgba(5, 7, 10, 0.78);
+  background: rgba(242, 234, 220, 0.86);
   border-bottom: 1px solid var(--line);
   backdrop-filter: blur(18px);
   -webkit-backdrop-filter: blur(18px);
@@ -178,7 +199,7 @@ button {
 }
 
 .header-nav a:hover {
-  color: var(--ink);
+  color: var(--page-ink);
 }
 
 .lang-toggle {
@@ -249,7 +270,7 @@ h1 {
 .lede {
   max-width: 620px;
   margin-block-end: 1.8rem;
-  color: #c9d1d9;
+  color: var(--muted);
   font-size: clamp(1.05rem, 2.4vw, 1.35rem);
   line-height: 1.55;
   text-wrap: pretty;
@@ -275,7 +296,7 @@ h1 {
   border: 1px solid var(--line-strong);
   border-radius: 28px;
   background:
-    linear-gradient(135deg, rgba(255, 90, 31, 0.1), transparent 45%),
+    linear-gradient(135deg, rgba(183, 134, 47, 0.1), transparent 45%),
     var(--panel);
   box-shadow: var(--shadow);
   overflow: hidden;
@@ -311,7 +332,7 @@ h1 {
   z-index: 2;
   height: 2px;
   background: linear-gradient(90deg, transparent, var(--orange), transparent);
-  box-shadow: 0 0 22px rgba(255, 90, 31, 0.7);
+  box-shadow: 0 0 22px rgba(183, 134, 47, 0.7);
   animation: scan 2.8s ease-in-out infinite alternate;
 }
 
@@ -422,7 +443,7 @@ h3 {
   inset-block-start: 0;
   inset-inline: 0;
   height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(255, 90, 31, 0.75), transparent);
+  background: linear-gradient(90deg, transparent, rgba(183, 134, 47, 0.75), transparent);
 }
 
 .terminal-bar {
@@ -582,13 +603,13 @@ h3 {
 }
 
 .reveal-row.is-scary {
-  background: linear-gradient(90deg, rgba(255, 90, 31, 0.06), transparent 70%);
+  background: linear-gradient(90deg, rgba(183, 134, 47, 0.06), transparent 70%);
   animation: row-in 400ms ease both, scary-pulse 3.2s ease-in-out 0.5s infinite;
 }
 
 @keyframes scary-pulse {
-  0%, 100% { box-shadow: inset 2px 0 0 rgba(255, 90, 31, 0.35); }
-  50% { box-shadow: inset 2px 0 0 rgba(255, 90, 31, 0.95), inset 38px 0 44px -38px rgba(255, 90, 31, 0.4); }
+  0%, 100% { box-shadow: inset 2px 0 0 rgba(183, 134, 47, 0.35); }
+  50% { box-shadow: inset 2px 0 0 rgba(183, 134, 47, 0.95), inset 38px 0 44px -38px rgba(183, 134, 47, 0.4); }
 }
 
 .row-index {
@@ -668,7 +689,7 @@ h3 {
 .reveal-foot {
   padding: 1.3rem 1rem 1.5rem;
   border-top: 1px solid var(--line-strong);
-  background: rgba(255, 90, 31, 0.035);
+  background: rgba(183, 134, 47, 0.035);
 }
 
 .reveal-headline {
@@ -689,11 +710,11 @@ h3 {
   position: relative;
   margin-block-start: 1.35rem;
   padding: 1rem;
-  border: 1px solid rgba(255, 90, 31, 0.48);
+  border: 1px solid rgba(183, 134, 47, 0.48);
   border-radius: 14px;
   background:
-    radial-gradient(420px 180px at 100% 0%, rgba(255, 90, 31, 0.22), transparent 72%),
-    linear-gradient(145deg, rgba(255, 90, 31, 0.08), rgba(0, 0, 0, 0.18));
+    radial-gradient(420px 180px at 100% 0%, rgba(183, 134, 47, 0.22), transparent 72%),
+    linear-gradient(145deg, rgba(183, 134, 47, 0.08), rgba(0, 0, 0, 0.18));
   overflow: hidden;
 }
 
@@ -744,7 +765,7 @@ h3 {
 
 .profile-stamp {
   padding: 0.2rem 0.4rem;
-  border: 1px solid rgba(255, 90, 31, 0.55);
+  border: 1px solid rgba(183, 134, 47, 0.55);
   border-radius: 4px;
   color: var(--orange);
   font-family: var(--font-mono);
@@ -875,10 +896,10 @@ h3 {
   gap: 0.5rem;
   min-height: 46px;
   padding: 0.7rem 1.1rem;
-  border: 1px solid var(--line-strong);
+  border: 1px solid var(--orange);
   border-radius: 999px;
-  background: var(--ink);
-  color: var(--bg);
+  background: var(--orange);
+  color: var(--page-ink);
   cursor: pointer;
   font-size: 0.85rem;
   font-weight: 800;
@@ -888,6 +909,7 @@ h3 {
 
 .button:hover {
   transform: translateY(-1px);
+  background: #c99a3f;
 }
 
 .button:disabled {
@@ -898,6 +920,12 @@ h3 {
 
 .button-outline {
   background: transparent;
+  color: var(--page-ink);
+}
+
+.terminal .button-outline,
+.quiz-card .button-outline,
+.waqi-card .button-outline {
   color: var(--ink);
 }
 
@@ -909,18 +937,18 @@ h3 {
 .button-orange {
   border-color: var(--orange);
   background: var(--orange);
-  color: #160803;
+  color: var(--page-ink);
 }
 
 .button-orange:hover {
-  background: #ff7a45;
+  background: #c99a3f;
 }
 
 .scammer-knows {
   margin-block: 0 1.5rem;
   padding-inline-start: 1rem;
   border-inline-start: 3px solid var(--orange);
-  color: var(--ink);
+  color: var(--page-ink);
   font-size: clamp(1.2rem, 3.5vw, 1.8rem);
   font-weight: 700;
   letter-spacing: -0.02em;
@@ -938,7 +966,7 @@ h3 {
   border: 1px solid var(--line-strong);
   border-radius: 16px;
   background:
-    radial-gradient(300px 120px at 100% 0%, rgba(255, 90, 31, 0.09), transparent 70%),
+    radial-gradient(300px 120px at 100% 0%, rgba(183, 134, 47, 0.09), transparent 70%),
     var(--panel);
   overflow: hidden;
 }
@@ -947,9 +975,9 @@ h3 {
   display: inline-block;
   margin-block-end: 0.8rem;
   padding: 0.25rem 0.45rem;
-  border: 1px solid rgba(255, 90, 31, 0.55);
+  border: 1px solid rgba(183, 134, 47, 0.55);
   border-radius: 5px;
-  background: rgba(255, 90, 31, 0.12);
+  background: rgba(183, 134, 47, 0.12);
   color: var(--orange);
   font-family: var(--font-mono);
   font-size: 0.55rem;
@@ -991,9 +1019,9 @@ h3 {
   gap: 0.15rem;
   margin-block-start: 0.9rem;
   padding: 0.55rem;
-  border: 1px dashed rgba(255, 90, 31, 0.35);
+  border: 1px dashed rgba(183, 134, 47, 0.35);
   border-radius: 8px;
-  background: rgba(255, 90, 31, 0.04);
+  background: rgba(183, 134, 47, 0.04);
   font-family: var(--font-mono);
   font-size: 0.62rem;
 }
@@ -1078,7 +1106,7 @@ h3 {
   padding: 0.9rem;
   border: 1px solid var(--line);
   border-radius: 12px;
-  background: #080d14;
+  background: #16222e;
   font-family: var(--font-mono);
   font-size: 0.72rem;
 }
@@ -1126,7 +1154,7 @@ h3 {
 .sample-stamp {
   display: inline-block;
   padding: 0.12rem 0.35rem;
-  border: 1px solid rgba(255, 90, 31, 0.55);
+  border: 1px solid rgba(183, 134, 47, 0.55);
   border-radius: 4px;
   color: var(--orange);
   font-size: 0.52rem;
@@ -1321,7 +1349,7 @@ h3 {
   padding: 1rem;
   border: 1px solid var(--line);
   border-radius: 14px;
-  background: rgba(255, 255, 255, 0.02);
+  background: var(--panel);
 }
 
 .tip-number {
@@ -1345,7 +1373,7 @@ h3 {
 
 .good-closing {
   margin-block: 1.4rem;
-  color: var(--ink);
+  color: var(--page-ink);
   font-size: clamp(1.05rem, 2.6vw, 1.25rem);
   font-weight: 700;
 }
@@ -1354,10 +1382,10 @@ h3 {
   display: grid;
   gap: 1.5rem;
   padding: clamp(1.3rem, 4vw, 2.5rem);
-  border: 1px solid rgba(255, 90, 31, 0.4);
+  border: 1px solid rgba(183, 134, 47, 0.4);
   border-radius: var(--radius);
   background:
-    radial-gradient(700px 260px at 100% 0%, rgba(255, 90, 31, 0.19), transparent 70%),
+    radial-gradient(700px 260px at 100% 0%, rgba(183, 134, 47, 0.19), transparent 70%),
     linear-gradient(140deg, #0d1116, #130b07);
   box-shadow: var(--shadow);
 }
@@ -1366,7 +1394,7 @@ h3 {
   display: inline-block;
   margin-block-end: 0.8rem;
   padding: 0.2rem 0.4rem;
-  border: 1px dashed rgba(255, 90, 31, 0.5);
+  border: 1px dashed rgba(183, 134, 47, 0.5);
   border-radius: 4px;
   color: var(--orange);
   font-family: var(--font-mono);
@@ -1461,7 +1489,7 @@ h3 {
   padding: clamp(1.2rem, 4vw, 2rem);
   border: 1px solid var(--line-strong);
   border-radius: var(--radius);
-  background: rgba(255, 255, 255, 0.022);
+  background: var(--panel);
 }
 
 .transparency-head {
@@ -1560,11 +1588,11 @@ h3 {
   gap: 0.5rem;
   min-height: 2.6rem;
   padding: 0.55rem 1rem calc(0.55rem + env(safe-area-inset-bottom));
-  border-top: 1px solid var(--line-strong);
-  background: rgba(5, 7, 10, 0.94);
+  border-top: 1px solid var(--line-on-dark-strong);
+  background: rgba(31, 45, 59, 0.96);
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
-  color: var(--muted);
+  color: var(--muted-on-dark);
   font-family: var(--font-mono);
   font-size: 0.62rem;
   line-height: 1.35;
@@ -1582,7 +1610,7 @@ h3 {
   height: 6px;
   border-radius: 50%;
   background: var(--green);
-  box-shadow: 0 0 8px rgba(87, 217, 163, 0.7);
+  box-shadow: 0 0 8px rgba(111, 125, 90, 0.7);
   flex: 0 0 auto;
 }
 

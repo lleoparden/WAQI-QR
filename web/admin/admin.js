@@ -113,8 +113,8 @@ function handleApiError(error) {
 
 function setupChartsDefaults() {
   if (!window.Chart) return;
-  window.Chart.defaults.color = '#94a0ac';
-  window.Chart.defaults.borderColor = 'rgba(244, 241, 232, 0.09)';
+  window.Chart.defaults.color = '#5f6c78';
+  window.Chart.defaults.borderColor = 'rgba(30, 42, 56, 0.1)';
   window.Chart.defaults.font.family = 'system-ui, -apple-system, "Segoe UI", Tahoma, Arial, sans-serif';
   window.Chart.defaults.font.size = 11;
   window.Chart.defaults.plugins.legend.labels.boxWidth = 10;
@@ -368,8 +368,8 @@ function chartBase() {
     animation: { duration: 350 },
     plugins: { legend: { display: true, position: 'bottom' } },
     scales: {
-      x: { grid: { color: 'rgba(244,241,232,0.06)' }, ticks: { maxRotation: 0 } },
-      y: { beginAtZero: true, grid: { color: 'rgba(244,241,232,0.06)' }, ticks: { precision: 0 } },
+      x: { grid: { color: 'rgba(30,42,56,0.08)' }, ticks: { maxRotation: 0 } },
+      y: { beginAtZero: true, grid: { color: 'rgba(30,42,56,0.08)' }, ticks: { precision: 0 } },
     },
   };
 }
@@ -410,8 +410,8 @@ function renderTimeseries(rows) {
         {
           label: 'Human scans',
           data: rows.map((row) => Number(row.scans)),
-          borderColor: '#ff5a1f',
-          backgroundColor: 'rgba(255,90,31,0.12)',
+          borderColor: '#b7862f',
+          backgroundColor: 'rgba(183,134,47,0.16)',
           fill: true,
           tension: 0.32,
           pointRadius: 2,
@@ -420,8 +420,8 @@ function renderTimeseries(rows) {
         {
           label: 'Unique visitors',
           data: rows.map((row) => Number(row.unique_visitors)),
-          borderColor: '#57d9a3',
-          backgroundColor: 'rgba(87,217,163,0.08)',
+          borderColor: '#6f7d5a',
+          backgroundColor: 'rgba(111,125,90,0.1)',
           fill: false,
           tension: 0.32,
           pointRadius: 1.5,
@@ -443,7 +443,7 @@ function renderFunnel(rows) {
       datasets: [{
         label: 'Unique humans',
         data: rows.map((row) => Number(row.count)),
-        backgroundColor: rows.map((_, index) => `rgba(255,90,31,${Math.max(0.22, 0.9 - index * 0.07)})`),
+        backgroundColor: rows.map((_, index) => `rgba(183,134,47,${Math.max(0.22, 0.9 - index * 0.07)})`),
         borderRadius: 4,
       }],
     },
@@ -462,7 +462,7 @@ function renderFunnel(rows) {
         },
       },
       scales: {
-        x: { beginAtZero: true, grid: { color: 'rgba(244,241,232,0.06)' }, ticks: { precision: 0 } },
+        x: { beginAtZero: true, grid: { color: 'rgba(30,42,56,0.08)' }, ticks: { precision: 0 } },
         y: { grid: { display: false } },
       },
     },
@@ -480,13 +480,13 @@ function renderVariants(rows) {
         {
           label: 'Reveal completed %',
           data: rows.map((row) => Number(row.reveal_completed_rate || 0)),
-          backgroundColor: 'rgba(87,217,163,0.7)',
+          backgroundColor: 'rgba(111,125,90,0.72)',
           borderRadius: 4,
         },
         {
           label: 'CTA click %',
           data: rows.map((row) => Number(row.cta_click_rate || 0)),
-          backgroundColor: 'rgba(255,90,31,0.75)',
+          backgroundColor: 'rgba(183,134,47,0.76)',
           borderRadius: 4,
         },
       ],
@@ -495,7 +495,7 @@ function renderVariants(rows) {
       ...chartBase(),
       scales: {
         x: { grid: { display: false } },
-        y: { beginAtZero: true, max: 100, grid: { color: 'rgba(244,241,232,0.06)' }, ticks: { callback: (value) => `${value}%` } },
+        y: { beginAtZero: true, max: 100, grid: { color: 'rgba(30,42,56,0.08)' }, ticks: { callback: (value) => `${value}%` } },
       },
     },
   });
@@ -534,8 +534,8 @@ function renderHeatmap(rows) {
       cell.dataset.count = String(count);
       const ratio = max ? count / max : 0;
       cell.style.background = count
-        ? `rgba(255,90,31,${0.1 + ratio * 0.9})`
-        : 'rgba(255,255,255,0.04)';
+        ? `rgba(183,134,47,${0.1 + ratio * 0.9})`
+        : 'rgba(30,42,56,0.06)';
       cell.title = `${day} ${String(hour).padStart(2, '0')}:00 — ${count} human scans`;
       container.append(cell);
     }
@@ -654,7 +654,7 @@ async function makeQrCanvas(url, size) {
     errorCorrectionLevel: 'H',
     width: size,
     margin: 2,
-    color: { dark: '#05070a', light: '#ffffff' },
+    color: { dark: '#1e2a38', light: '#f8f3e8' },
   });
   return canvas;
 }
@@ -671,7 +671,7 @@ async function showPreview(row) {
       errorCorrectionLevel: 'H',
       width: 360,
       margin: 2,
-      color: { dark: '#05070a', light: '#ffffff' },
+      color: { dark: '#1e2a38', light: '#f8f3e8' },
     });
   } catch {
     setStatus('#poster-status', 'Could not draw the QR. Check that the qrcode CDN loaded.', 'error');
@@ -715,7 +715,7 @@ async function downloadQrSvg() {
       errorCorrectionLevel: 'H',
       margin: 2,
       width: 1024,
-      color: { dark: '#05070a', light: '#ffffff' },
+      color: { dark: '#1e2a38', light: '#f8f3e8' },
     });
     downloadBlob(new Blob([svg], { type: 'image/svg+xml' }), `waqi-${state.preview.slug}-qr.svg`);
   } catch (error) {
@@ -797,14 +797,14 @@ async function drawPoster() {
   const W = canvas.width;
   const H = canvas.height;
   const margin = Math.round(W * 0.075);
-  const cream = '#f4f1e8';
-  const ink = '#11151a';
-  const orange = '#ff5a1f';
+  const cream = '#f2eadc';
+  const ink = '#1e2a38';
+  const orange = '#b7862f';
 
   ctx.fillStyle = cream;
   ctx.fillRect(0, 0, W, H);
 
-  ctx.strokeStyle = 'rgba(17,21,26,0.15)';
+  ctx.strokeStyle = 'rgba(30,42,56,0.15)';
   ctx.lineWidth = Math.max(2, Math.round(W * 0.0015));
   ctx.strokeRect(margin * 0.55, margin * 0.55, W - margin * 1.1, H - margin * 1.1);
 
@@ -832,7 +832,7 @@ async function drawPoster() {
   ctx.font = `800 ${ctaSize}px ${font}`;
   let ctaBottom = drawLines(ctx, cta, x, H * 0.16, maxWidth, ctaSize * 1.12, 4);
 
-  ctx.fillStyle = 'rgba(17,21,26,0.62)';
+  ctx.fillStyle = 'rgba(30,42,56,0.62)';
   ctx.font = `500 ${Math.round(W * 0.023)}px ${font}`;
   const subtitle = rtl
     ? 'رمز QR هو لينك. خد وقفة قبل ما تضغط.'
@@ -844,10 +844,10 @@ async function drawPoster() {
   const qrY = Math.round(Math.max(ctaBottom + W * 0.045, H * 0.39));
   const cardPad = Math.round(W * 0.035);
 
-  ctx.fillStyle = '#ffffff';
+  ctx.fillStyle = '#fbf7ee';
   roundedRect(ctx, qrX - cardPad, qrY - cardPad, qrSize + cardPad * 2, qrSize + cardPad * 2, W * 0.02);
   ctx.fill();
-  ctx.strokeStyle = 'rgba(17,21,26,0.12)';
+  ctx.strokeStyle = 'rgba(30,42,56,0.12)';
   ctx.lineWidth = 2;
   ctx.stroke();
 
@@ -861,7 +861,7 @@ async function drawPoster() {
       const logoX = qrX + (qrSize - logoSize) / 2;
       const logoY = qrY + (qrSize - logoSize) / 2;
       const pad = Math.round(logoSize * 0.14);
-      ctx.fillStyle = '#ffffff';
+      ctx.fillStyle = '#fbf7ee';
       roundedRect(ctx, logoX - pad, logoY - pad, logoSize + pad * 2, logoSize + pad * 2, logoSize * 0.16);
       ctx.fill();
       const ratio = Math.min(logoSize / logo.width, logoSize / logo.height);

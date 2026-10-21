@@ -282,7 +282,7 @@ grep -nE "api\.js|record_scan|record_event|localStorage|SUPABASE_URL|rest/v1" we
 
 - Battery, connection, GPU, and high-entropy client hints should populate where available.
 - Missing APIs (for example `deviceMemory`) omit their line instead of showing an empty “not exposed” entry.
-- Test both dark and light system themes; the page remains dark by design but the `Color scheme` row reflects the OS setting.
+- Test both dark and light system themes; the page uses the cream/navy/gold palette by design and dark cards must keep readable contrast.
 - Test the share sheet with a file; otherwise the download fallback must work.
 - Scan from the phone camera and confirm the count in the dashboard.
 
