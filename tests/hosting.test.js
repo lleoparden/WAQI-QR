@@ -48,6 +48,17 @@ test('admin generates a client-side slug when the field is left blank', async ()
   assert.match(admin, /\|\| randomSlug\(\)/);
 });
 
+test('the dashboard has a local-only palette switcher', async () => {
+  const html = await read('web/admin/index.html');
+  const admin = await read('web/admin/admin.js');
+  const palettes = await read('web/admin/palettes.js');
+  assert.match(html, /id="palette-select"/);
+  assert.match(admin, /waqi_admin_palette/);
+  assert.match(admin, /applyPalette/);
+  assert.match(palettes, /Paynes & Pearl/);
+  assert.doesNotMatch(palettes, /supabase\.co|createClient|anon_key/i);
+});
+
 test('documentation deliverables exist', async () => {
   for (const file of ['README.md', 'API.md', 'TESTING.md']) {
     const text = await read(file);

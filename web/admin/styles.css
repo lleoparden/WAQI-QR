@@ -1,17 +1,17 @@
 :root {
   color-scheme: light;
-  --bg: #f2eadc;
-  --panel: #fbf7ee;
-  --panel-2: #f6efe2;
-  --ink: #1e2a38;
-  --muted: #5f6c78;
-  --dim: #8a8a7f;
-  --orange: #b7862f;
-  --orange-soft: rgba(183, 134, 47, 0.14);
-  --line: rgba(30, 42, 56, 0.14);
-  --line-strong: rgba(30, 42, 56, 0.24);
-  --green: #6f7d5a;
-  --red: #a9472f;
+  --bg: #eae0c8;
+  --panel: #fbf8f0;
+  --panel-2: #f6efdf;
+  --ink: #1e2a33;
+  --muted: #536878;
+  --dim: #7a6f50;
+  --orange: #c98a2b;
+  --orange-soft: rgba(201, 138, 43, 0.14);
+  --line: rgba(30, 42, 51, 0.14);
+  --line-strong: rgba(30, 42, 51, 0.24);
+  --green: #6b7f8c;
+  --red: #a8452f;
   --font-body: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Tahoma, "Noto Sans Arabic", Arial, sans-serif;
   --font-mono: ui-monospace, "SFMono-Regular", "Cascadia Mono", Consolas, monospace;
   --radius: 16px;
@@ -35,7 +35,7 @@ body {
   margin: 0;
   min-width: 320px;
   background:
-    radial-gradient(900px 500px at 85% -15%, rgba(183, 134, 47, 0.16), transparent 60%),
+    radial-gradient(900px 500px at 85% -15%, color-mix(in srgb, var(--orange) 16%, transparent), transparent 60%),
     var(--bg);
   color: var(--ink);
   font-family: var(--font-body);
@@ -77,7 +77,7 @@ code {
   gap: 1rem;
   padding: 0.8rem clamp(1rem, 4vw, 2rem);
   border-bottom: 1px solid var(--line);
-  background: rgba(242, 234, 220, 0.9);
+  background: color-mix(in srgb, var(--bg) 90%, transparent);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
 }
@@ -127,8 +127,30 @@ code {
 
 .admin-top-actions {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 0.8rem;
+}
+
+.palette-field {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: var(--muted);
+  font-size: 0.68rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.palette-field select {
+  max-width: 12rem;
+  padding: 0.35rem 1.4rem 0.35rem 0.5rem;
+  border: 1px solid var(--line-strong);
+  border-radius: 8px;
+  background: var(--panel);
+  color: var(--ink);
+  font: inherit;
+  font-weight: 600;
 }
 
 .sync-note {
@@ -175,7 +197,7 @@ code {
 }
 
 .primary-button:hover {
-  background: #c99a3f;
+  background: color-mix(in srgb, var(--orange) 82%, white);
 }
 
 .primary-button:disabled,
@@ -260,9 +282,9 @@ h3 {
 }
 
 .stat-card.accent {
-  border-color: rgba(183, 134, 47, 0.42);
+  border-color: color-mix(in srgb, var(--orange) 42%, transparent);
   background:
-    radial-gradient(280px 140px at 100% 0%, rgba(183, 134, 47, 0.16), transparent 70%),
+    radial-gradient(280px 140px at 100% 0%, color-mix(in srgb, var(--orange) 16%, transparent), transparent 70%),
     var(--panel);
 }
 
@@ -304,7 +326,7 @@ h3 {
   height: 14px;
   border: 1px solid var(--line);
   border-radius: 999px;
-  background: rgba(30, 42, 56, 0.07);
+  background: color-mix(in srgb, var(--ink) 7%, transparent);
   overflow: hidden;
 }
 
@@ -313,7 +335,7 @@ h3 {
   width: 0;
   height: 100%;
   border-radius: 999px;
-  background: linear-gradient(90deg, var(--orange), #d1a24a);
+  background: linear-gradient(90deg, var(--orange), color-mix(in srgb, var(--orange) 70%, white));
   transition: width 400ms ease;
 }
 
@@ -395,7 +417,7 @@ h3 {
   padding: 0.55rem 0.6rem;
   border: 1px solid var(--line-strong);
   border-radius: 8px;
-  background: #f8f3e8;
+  background: var(--panel-2);
   color: var(--ink);
   font-size: 0.82rem;
   font-weight: 400;
@@ -444,7 +466,7 @@ h3 {
 }
 
 .preview-panel {
-  border-color: rgba(183, 134, 47, 0.38);
+  border-color: color-mix(in srgb, var(--orange) 38%, transparent);
 }
 
 .qr-preview-box {
@@ -452,7 +474,7 @@ h3 {
   place-items: center;
   padding: 0.8rem;
   border-radius: 12px;
-  background: #f6f3eb;
+  background: var(--panel-2);
 }
 
 .qr-preview-box canvas {
@@ -528,7 +550,7 @@ h3 {
 .qr-table td {
   padding: 0.5rem 0.45rem;
   border-bottom: 1px solid var(--line);
-  color: #344555;
+  color: var(--ink);
   vertical-align: middle;
 }
 
@@ -561,9 +583,9 @@ h3 {
 .scan-badge {
   display: inline-block;
   padding: 0.16rem 0.42rem;
-  border: 1px solid rgba(111, 125, 90, 0.55);
+  border: 1px solid color-mix(in srgb, var(--green) 55%, transparent);
   border-radius: 999px;
-  background: rgba(111, 125, 90, 0.12);
+  background: color-mix(in srgb, var(--green) 12%, transparent);
   color: var(--green);
   font-family: var(--font-mono);
   font-size: 0.56rem;
@@ -573,8 +595,8 @@ h3 {
 }
 
 .scan-badge.is-bot {
-  border-color: rgba(169, 71, 47, 0.45);
-  background: rgba(169, 71, 47, 0.1);
+  border-color: color-mix(in srgb, var(--red) 45%, transparent);
+  background: color-mix(in srgb, var(--red) 10%, transparent);
   color: var(--red);
 }
 
@@ -583,7 +605,7 @@ h3 {
   height: 19px;
   border: 1px solid var(--line-strong);
   border-radius: 999px;
-  background: rgba(30, 42, 56, 0.08);
+  background: color-mix(in srgb, var(--ink) 8%, transparent);
   cursor: pointer;
   padding: 2px;
 }
@@ -599,8 +621,8 @@ h3 {
 }
 
 .toggle.is-on {
-  border-color: rgba(111, 125, 90, 0.6);
-  background: rgba(111, 125, 90, 0.14);
+  border-color: color-mix(in srgb, var(--green) 60%, transparent);
+  background: color-mix(in srgb, var(--green) 14%, transparent);
 }
 
 .toggle.is-on::after {
@@ -668,7 +690,7 @@ h3 {
 .hm-cell {
   aspect-ratio: 1;
   border-radius: 3px;
-  background: rgba(30, 42, 56, 0.06);
+  background: color-mix(in srgb, var(--ink) 6%, transparent);
 }
 
 .hm-cell[data-count]:hover {
@@ -706,15 +728,15 @@ h3 {
 }
 
 .notice.warning {
-  border: 1px solid rgba(183, 134, 47, 0.5);
-  background: rgba(183, 134, 47, 0.1);
-  color: #74551b;
+  border: 1px solid color-mix(in srgb, var(--orange) 50%, transparent);
+  background: color-mix(in srgb, var(--orange) 10%, transparent);
+  color: var(--ink);
 }
 
 .notice.error {
-  border: 1px solid rgba(169, 71, 47, 0.45);
-  background: rgba(169, 71, 47, 0.08);
-  color: #7f2f1e;
+  border: 1px solid color-mix(in srgb, var(--red) 45%, transparent);
+  background: color-mix(in srgb, var(--red) 8%, transparent);
+  color: var(--red);
 }
 
 .edit-dialog {
@@ -757,7 +779,7 @@ h3 {
   place-items: center;
   padding: 1rem;
   background:
-    radial-gradient(700px 420px at 0% 0%, rgba(183, 134, 47, 0.16), transparent 65%),
+    radial-gradient(700px 420px at 0% 0%, color-mix(in srgb, var(--orange) 16%, transparent), transparent 65%),
     var(--bg);
 }
 

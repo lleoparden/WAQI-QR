@@ -10,7 +10,7 @@ Use this after the Supabase project and GitHub Pages site are configured. The au
 npm test
 ```
 
-Expected: **59 tests pass**, with no skipped tests.
+Expected: **64 tests pass**, with no skipped tests.
 
 The suite covers:
 
@@ -294,7 +294,7 @@ grep -nE "api\.js|record_scan|record_event|localStorage|SUPABASE_URL|rest/v1" we
 
 1. Create a QR with a custom slug and variant.
 2. **Expected:** preview panel opens; URL is `<LANDING_BASE_URL>/?src=<slug>`; QR is high-error-correction (level H).
-3. Open **Latest scans**. Each row shows the QR slug, label, visitor prefix, and Human/Bot badge. A scan of two different QRs must appear as two different rows.
+   - Open **Latest scans**. Each row shows the QR slug, label, visitor prefix, and Human/Bot badge. A scan of two different QRs must appear as two different rows.
 3. **Download PNG** and scan it with a phone; it must open the landing page with the right slug.
 4. **Download SVG**; open it in a browser or Illustrator/Inkscape; it must be crisp at large print sizes.
 5. **Download poster tile (300 DPI)** for A5 and A4. The poster carries the QR only — no URL text.
@@ -315,6 +315,15 @@ grep -nE "api\.js|record_scan|record_event|localStorage|SUPABASE_URL|rest/v1" we
 12. Toggle **Active** off. **Expected:** survives reload and the QR is ignored.
 13. Export **Per-QR CSV** and **Raw scans CSV**. **Expected:** valid UTF-8 CSV with a BOM; Arabic labels intact in Excel; no IP/fingerprint/coordinates columns.
 14. Leave the dashboard open for 30+ seconds. **Expected:** **Synced** timestamp updates and numbers refresh without a full page reload.
+
+### Dashboard palettes (local only)
+
+1. Use the **Theme** selector in the top bar. Switch through **A Paynes & Pearl**, **B Sand & Indigo**, **C Navy & Orange**, and **D Plum & Tangerine**.
+2. **Expected:** background, panels, text, buttons, badges, charts, heatmap, and the QR preview all change; no console errors.
+3. Reload. **Expected:** the selected theme is restored from `waqi_admin_palette` in localStorage.
+4. Open a QR preview, switch themes. **Expected:** the preview QR redraws with the new light/dark pair and stays scannable.
+5. Export a poster after switching. **Expected:** poster background, text, accent, and QR use the selected palette.
+6. Check the Network tab. **Expected:** no Supabase request is made by the theme switch — it is browser-only.
 
 ---
 

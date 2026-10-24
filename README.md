@@ -37,6 +37,7 @@ web/
     index.html, login.html          dashboard + login
     styles.css                      admin-only styling
     admin.js, login.js, png.js       dashboard logic and 300-DPI PNG helper
+    palettes.js                     local A/B/C/D dashboard palettes
 tests/                              node:test unit tests
 .github/workflows/                  deploy.yml, keepalive.yml
 API.md                              backend contract for any future frontend
@@ -257,6 +258,7 @@ If you replace the frontend, do not change the privacy contract: no IP, fingerpr
 
 - **Overview cards:** human scans, unique humans, active QR count, last 24 hours, human/bot split.
 - **Goal tracker:** target saved in the browser’s local storage, progress from human scans.
+- **Theme selector:** switches the dashboard and print assets between the four seminar palettes (A Paynes & Pearl, B Sand & Indigo, C Navy & Orange, D Plum & Tangerine). Saved locally as `waqi_admin_palette`; never sent to Supabase. The selected palette also colours the QR preview and poster exports.
 - **Create QR:** label, placement, optional slug, optional A/B variant. Auto-generates an 8-character slug.
 - **QR table:** sortable columns, preview, edit label/placement/variant/dates, active toggle.
 - **Latest scans:** newest 20 scans with the QR slug and label, visitor prefix, and human/bot badge. This makes every tracker row attributable to a specific QR.

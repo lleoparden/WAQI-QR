@@ -15,6 +15,7 @@ import {
   updateQr,
 } from '../js/api.js';
 import { pngBlobWithDpi } from './png.js';
+import { PALETTE_IDS, PALETTES, paletteCss, toHex, toRgba } from './palettes.js';
 
 const $ = (selector, root = document) => root.querySelector(selector);
 const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
@@ -28,6 +29,7 @@ const state = {
   chartQr: '',
   preview: null,
   logoDataUrl: null,
+  palette: 'A',
   goal: 500,
   loading: false,
   session: null,
@@ -113,14 +115,75 @@ function handleApiError(error) {
 
 function setupChartsDefaults() {
   if (!window.Chart) return;
-  window.Chart.defaults.color = '#5f6c78';
-  window.Chart.defaults.borderColor = 'rgba(30, 42, 56, 0.1)';
+  const palette = paletteFor(state.palette);
+  window.Chart.defaults.color = toHex(palette.dk2);
+  window.Chart.defaults.borderColor = toRgba(palette.dk1, 0.1);
   window.Chart.defaults.font.family = 'system-ui, -apple-system, "Segoe UI", Tahoma, Arial, sans-serif';
   window.Chart.defaults.font.size = 11;
   window.Chart.defaults.plugins.legend.labels.boxWidth = 10;
 }
 
+function paletteFor(id) {
+  return PALETTES[id] || PALETTES.A;
+}
+
+function initPalette() {
+  const select = $('#palette-select');
+  if (!select) return;
+  select.replaceChildren(...PALETTE_IDS.map((id) => new Option(`${id} · ${PALETTES[id].name}`, id)));
+  let stored = 'A';
+  try {
+    stored = localStorage.getItem('waqi_admin_palette') || 'A';
+  } catch {
+    stored = 'A';
+  }
+  applyPalette(stored, { persist: false, rerender: false });
+  select.addEventListener('change', () => applyPalette(select.value));
+}
+
+function applyPalette(id, { persist = true, rerender = true } = {}) {
+  const key = Object.hasOwn(PALETTES, id) ? id : 'A';
+  state.palette = key;
+  document.documentElement.dataset.palette = key;
+  const css = paletteCss(PALETTES[key]);
+  for (const [name, value] of Object.entries(css)) {
+    document.documentElement.style.setProperty(name, value);
+  }
+  const select = $('#palette-select');
+  if (select) select.value = key;
+  const themeMeta = document.querySelector('meta[name="theme-color"]');
+  if (themeMeta) themeMeta.content = toHex(PALETTES[key].lt2);
+  if (persist) {
+    try {
+      localStorage.setItem('waqi_admin_palette', key);
+    } catch {
+      // A private window can reject storage; the theme still applies for this page.
+    }
+  }
+  if (rerender) {
+    setupChartsDefaults();
+    void loadCharts();
+    void refreshQrPreview();
+  }
+}
+
+async function refreshQrPreview() {
+  if (!state.preview || !window.QRCode?.toCanvas) return;
+  const palette = paletteFor(state.palette);
+  try {
+    await window.QRCode.toCanvas($('#qr-preview'), landingUrl(state.preview.slug), {
+      errorCorrectionLevel: 'H',
+      width: 360,
+      margin: 2,
+      color: { dark: toHex(palette.dk1), light: toHex(palette.lt1) },
+    });
+  } catch {
+    // Keep the previous preview if the CDN is unavailable.
+  }
+}
+
 async function init() {
+  initPalette();
   if (!isConfigured()) {
     $('#config-warning').hidden = false;
     $('#admin-loading').textContent = 'Not configured';
@@ -361,15 +424,29 @@ function renderRecentScans() {
   }
 }
 
+function chartColors() {
+  const palette = paletteFor(state.palette);
+  return {
+    primary: toHex(palette.accent3),
+    secondary: toHex(palette.accent5),
+    primaryFill: toRgba(palette.accent3, 0.16),
+    secondaryFill: toRgba(palette.accent5, 0.12),
+    primaryBar: toRgba(palette.accent3, 0.76),
+    secondaryBar: toRgba(palette.accent5, 0.72),
+    grid: toRgba(palette.dk1, 0.08),
+  };
+}
+
 function chartBase() {
+  const colors = chartColors();
   return {
     responsive: true,
     maintainAspectRatio: false,
     animation: { duration: 350 },
     plugins: { legend: { display: true, position: 'bottom' } },
     scales: {
-      x: { grid: { color: 'rgba(30,42,56,0.08)' }, ticks: { maxRotation: 0 } },
-      y: { beginAtZero: true, grid: { color: 'rgba(30,42,56,0.08)' }, ticks: { precision: 0 } },
+      x: { grid: { color: colors.grid }, ticks: { maxRotation: 0 } },
+      y: { beginAtZero: true, grid: { color: colors.grid }, ticks: { precision: 0 } },
     },
   };
 }
@@ -402,6 +479,7 @@ async function loadCharts() {
 function renderTimeseries(rows) {
   if (!window.Chart) return;
   destroyChart('timeseries');
+  const colors = chartColors();
   state.charts.timeseries = new window.Chart($('#timeseries-chart'), {
     type: 'line',
     data: {
@@ -410,8 +488,8 @@ function renderTimeseries(rows) {
         {
           label: 'Human scans',
           data: rows.map((row) => Number(row.scans)),
-          borderColor: '#b7862f',
-          backgroundColor: 'rgba(183,134,47,0.16)',
+          borderColor: colors.primary,
+          backgroundColor: colors.primaryFill,
           fill: true,
           tension: 0.32,
           pointRadius: 2,
@@ -420,8 +498,8 @@ function renderTimeseries(rows) {
         {
           label: 'Unique visitors',
           data: rows.map((row) => Number(row.unique_visitors)),
-          borderColor: '#6f7d5a',
-          backgroundColor: 'rgba(111,125,90,0.1)',
+          borderColor: colors.secondary,
+          backgroundColor: colors.secondaryFill,
           fill: false,
           tension: 0.32,
           pointRadius: 1.5,
@@ -436,6 +514,8 @@ function renderTimeseries(rows) {
 function renderFunnel(rows) {
   if (!window.Chart) return;
   destroyChart('funnel');
+  const palette = paletteFor(state.palette);
+  const colors = chartColors();
   state.charts.funnel = new window.Chart($('#funnel-chart'), {
     type: 'bar',
     data: {
@@ -443,7 +523,7 @@ function renderFunnel(rows) {
       datasets: [{
         label: 'Unique humans',
         data: rows.map((row) => Number(row.count)),
-        backgroundColor: rows.map((_, index) => `rgba(183,134,47,${Math.max(0.22, 0.9 - index * 0.07)})`),
+        backgroundColor: rows.map((_, index) => toRgba(palette.accent3, Math.max(0.22, 0.9 - index * 0.07))),
         borderRadius: 4,
       }],
     },
@@ -462,7 +542,7 @@ function renderFunnel(rows) {
         },
       },
       scales: {
-        x: { beginAtZero: true, grid: { color: 'rgba(30,42,56,0.08)' }, ticks: { precision: 0 } },
+        x: { beginAtZero: true, grid: { color: colors.grid }, ticks: { precision: 0 } },
         y: { grid: { display: false } },
       },
     },
@@ -472,6 +552,7 @@ function renderFunnel(rows) {
 function renderVariants(rows) {
   if (!window.Chart) return;
   destroyChart('variants');
+  const colors = chartColors();
   state.charts.variants = new window.Chart($('#variants-chart'), {
     type: 'bar',
     data: {
@@ -480,13 +561,13 @@ function renderVariants(rows) {
         {
           label: 'Reveal completed %',
           data: rows.map((row) => Number(row.reveal_completed_rate || 0)),
-          backgroundColor: 'rgba(111,125,90,0.72)',
+          backgroundColor: colors.secondaryBar,
           borderRadius: 4,
         },
         {
           label: 'CTA click %',
           data: rows.map((row) => Number(row.cta_click_rate || 0)),
-          backgroundColor: 'rgba(183,134,47,0.76)',
+          backgroundColor: colors.primaryBar,
           borderRadius: 4,
         },
       ],
@@ -495,7 +576,7 @@ function renderVariants(rows) {
       ...chartBase(),
       scales: {
         x: { grid: { display: false } },
-        y: { beginAtZero: true, max: 100, grid: { color: 'rgba(30,42,56,0.08)' }, ticks: { callback: (value) => `${value}%` } },
+        y: { beginAtZero: true, max: 100, grid: { color: colors.grid }, ticks: { callback: (value) => `${value}%` } },
       },
     },
   });
@@ -504,6 +585,7 @@ function renderVariants(rows) {
 function renderHeatmap(rows) {
   const container = $('#heatmap');
   container.replaceChildren();
+  const palette = paletteFor(state.palette);
   const counts = new Map();
   let max = 0;
   for (const row of rows) {
@@ -534,8 +616,8 @@ function renderHeatmap(rows) {
       cell.dataset.count = String(count);
       const ratio = max ? count / max : 0;
       cell.style.background = count
-        ? `rgba(183,134,47,${0.1 + ratio * 0.9})`
-        : 'rgba(30,42,56,0.06)';
+        ? toRgba(palette.accent3, 0.1 + ratio * 0.9)
+        : toRgba(palette.dk1, 0.06);
       cell.title = `${day} ${String(hour).padStart(2, '0')}:00 — ${count} human scans`;
       container.append(cell);
     }
@@ -649,12 +731,13 @@ async function ensureQrLibrary() {
 
 async function makeQrCanvas(url, size) {
   if (!(await ensureQrLibrary())) throw new Error('QR library unavailable');
+  const palette = paletteFor(state.palette);
   const canvas = document.createElement('canvas');
   await window.QRCode.toCanvas(canvas, url, {
     errorCorrectionLevel: 'H',
     width: size,
     margin: 2,
-    color: { dark: '#1e2a38', light: '#f8f3e8' },
+    color: { dark: toHex(palette.dk1), light: toHex(palette.lt1) },
   });
   return canvas;
 }
@@ -666,12 +749,13 @@ async function showPreview(row) {
   const url = landingUrl(row.slug);
   $('#qr-url').textContent = url;
   setStatus('#poster-status', '');
+  const palette = paletteFor(state.palette);
   try {
     await window.QRCode.toCanvas($('#qr-preview'), url, {
       errorCorrectionLevel: 'H',
       width: 360,
       margin: 2,
-      color: { dark: '#1e2a38', light: '#f8f3e8' },
+      color: { dark: toHex(palette.dk1), light: toHex(palette.lt1) },
     });
   } catch {
     setStatus('#poster-status', 'Could not draw the QR. Check that the qrcode CDN loaded.', 'error');
@@ -710,12 +794,13 @@ async function downloadQrSvg() {
   if (!state.preview) return;
   try {
     if (!(await ensureQrLibrary())) return;
+    const palette = paletteFor(state.palette);
     const svg = await window.QRCode.toString(landingUrl(state.preview.slug), {
       type: 'svg',
       errorCorrectionLevel: 'H',
       margin: 2,
       width: 1024,
-      color: { dark: '#1e2a38', light: '#f8f3e8' },
+      color: { dark: toHex(palette.dk1), light: toHex(palette.lt1) },
     });
     downloadBlob(new Blob([svg], { type: 'image/svg+xml' }), `waqi-${state.preview.slug}-qr.svg`);
   } catch (error) {
@@ -797,14 +882,15 @@ async function drawPoster() {
   const W = canvas.width;
   const H = canvas.height;
   const margin = Math.round(W * 0.075);
-  const cream = '#f2eadc';
-  const ink = '#1e2a38';
-  const orange = '#b7862f';
+  const palette = paletteFor(state.palette);
+  const cream = toHex(palette.lt1);
+  const ink = toHex(palette.dk1);
+  const orange = toHex(palette.accent3);
 
   ctx.fillStyle = cream;
   ctx.fillRect(0, 0, W, H);
 
-  ctx.strokeStyle = 'rgba(30,42,56,0.15)';
+  ctx.strokeStyle = toRgba(palette.dk1, 0.15);
   ctx.lineWidth = Math.max(2, Math.round(W * 0.0015));
   ctx.strokeRect(margin * 0.55, margin * 0.55, W - margin * 1.1, H - margin * 1.1);
 
@@ -832,7 +918,7 @@ async function drawPoster() {
   ctx.font = `800 ${ctaSize}px ${font}`;
   let ctaBottom = drawLines(ctx, cta, x, H * 0.16, maxWidth, ctaSize * 1.12, 4);
 
-  ctx.fillStyle = 'rgba(30,42,56,0.62)';
+  ctx.fillStyle = toRgba(palette.dk1, 0.62);
   ctx.font = `500 ${Math.round(W * 0.023)}px ${font}`;
   const subtitle = rtl
     ? 'رمز QR هو لينك. خد وقفة قبل ما تضغط.'
@@ -844,10 +930,10 @@ async function drawPoster() {
   const qrY = Math.round(Math.max(ctaBottom + W * 0.045, H * 0.39));
   const cardPad = Math.round(W * 0.035);
 
-  ctx.fillStyle = '#fbf7ee';
+  ctx.fillStyle = cream;
   roundedRect(ctx, qrX - cardPad, qrY - cardPad, qrSize + cardPad * 2, qrSize + cardPad * 2, W * 0.02);
   ctx.fill();
-  ctx.strokeStyle = 'rgba(30,42,56,0.12)';
+  ctx.strokeStyle = toRgba(palette.dk1, 0.12);
   ctx.lineWidth = 2;
   ctx.stroke();
 
@@ -861,7 +947,7 @@ async function drawPoster() {
       const logoX = qrX + (qrSize - logoSize) / 2;
       const logoY = qrY + (qrSize - logoSize) / 2;
       const pad = Math.round(logoSize * 0.14);
-      ctx.fillStyle = '#fbf7ee';
+      ctx.fillStyle = cream;
       roundedRect(ctx, logoX - pad, logoY - pad, logoSize + pad * 2, logoSize + pad * 2, logoSize * 0.16);
       ctx.fill();
       const ratio = Math.min(logoSize / logo.width, logoSize / logo.height);

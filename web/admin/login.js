@@ -1,10 +1,25 @@
 import { getSession, isConfigured, signIn } from '../js/api.js';
+import { PALETTES, paletteCss } from './palettes.js';
 
 const form = document.querySelector('#login-form');
 const email = document.querySelector('#login-email');
 const password = document.querySelector('#login-password');
 const submit = document.querySelector('#login-submit');
 const status = document.querySelector('#login-status');
+
+try {
+  const saved = localStorage.getItem('waqi_admin_palette');
+  const palette = PALETTES[saved];
+  if (palette) {
+    for (const [name, value] of Object.entries(paletteCss(palette))) {
+      document.documentElement.style.setProperty(name, value);
+    }
+    const themeMeta = document.querySelector('meta[name="theme-color"]');
+    if (themeMeta) themeMeta.content = `#${palette.lt2}`;
+  }
+} catch {
+  // A private window can block storage; the default palette still works.
+}
 
 function setStatus(message, isError = false) {
   status.textContent = message;
